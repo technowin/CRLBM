@@ -86,6 +86,11 @@ urlpatterns = [
     path("menu_order",menu_order, name="menu_order"),
     path("delete_menu",delete_menu, name="delete_menu"),
     
+    # CMS - Customer Management System
+    path('cms/', include('CMS.urls', namespace='cms')),
+
+    # VMS - Vendor Management System
+    path('vendors/', include('vendors.urls')),
 
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),

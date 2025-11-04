@@ -1,0 +1,203 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block step_content %}
+
+                        {% comment %} {% url 'vendors:add_concern_person' vendor.id %} {% endcomment %}
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Branch/Department *</label>
+                                        <input type="text" name="branch" class="form-control" placeholder="Branch or department" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Concern For *</label>
+                                        <select name="concern_for" class="form-select" required>
+                                            <option value="">Select Concern</option>
+                                            <option value="billing">Billing</option>
+                                            <option value="payment">Payment</option>
+                                            <option value="project">Project</option>
+                                            <option value="site">Site</option>
+                                            <option value="technical">Technical</option>
+                                            <option value="commercial">Commercial</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Name *</label>
+                                        <input type="text" name="name" class="form-control" placeholder="Full name" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Designation</label>
+                                        <input type="text" name="designation" class="form-control" placeholder="Designation">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Mobile 1 *</label>
+                                        <input type="text" name="mobile_1" class="form-control" placeholder="Primary mobile" pattern="[6-9][0-9]{9}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Mobile 2</label>
+                                        <input type="text" name="mobile_2" class="form-control" placeholder="Secondary mobile" pattern="[6-9][0-9]{9}">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Office Phone</label>
+                                        <input type="text" name="office_phone" class="form-control" placeholder="Office phone">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Email</label>
+                                        <input type="email" name="company_email" class="form-control" placeholder="company@example.com">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Personal Email</label>
+                                        <input type="email" name="personal_email" class="form-control" placeholder="personal@example.com">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" name="is_active" class="form-check-input" id="is_active" checked>
+                                        <label class="form-check-label" for="is_active">Active</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" name="is_primary" class="form-check-input" id="is_primary">
+                                        <label class="form-check-label" for="is_primary">Set as Primary Contact</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Add Concern Person
+                                </button>
+                            </div>
+                        </form>
+                
+                <!-- Existing Concern Persons -->
+                <div class="card mt-3">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Concern Persons</h5>
+                        <span class="badge bg-primary">{{ vendor.concern_persons.count }} persons</span>
+                    </div>
+                    <div class="card-body">
+                        {% if vendor.concern_persons.all %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Designation</th>
+                                        <th>Branch</th>
+                                        <th>Concern For</th>
+                                        <th>Mobile</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for person in vendor.concern_persons.all %}
+                                    <tr class="{% if person.is_primary %}table-primary{% endif %}">
+                                        <td>
+                                            <strong>{{ person.name }}</strong>
+                                            {% if person.is_primary %}
+                                            <span class="badge bg-success ms-1">Primary</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ person.designation|default:"-" }}</td>
+                                        <td>{{ person.branch }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ person.get_concern_for_display }}</span>
+                                        </td>
+                                        <td>
+                                            {{ person.mobile_1 }}
+                                            {% if person.mobile_2 %}
+                                            <br><small class="text-muted">{{ person.mobile_2 }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if person.company_email %}
+                                            <div>{{ person.company_email }}</div>
+                                            {% endif %}
+                                            {% if person.personal_email %}
+                                            <div><small class="text-muted">{{ person.personal_email }}</small></div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if person.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form method="post" action="{% url 'vendors:delete_concern_person' person.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this concern person?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-person-lines-fill display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No concern persons added yet.</p>
+                            <p class="text-muted small">Add contact persons for different concerns like billing, payment, project, etc.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+                    <div>
+                        <a href="{% url 'vendors:vendor_wizard_step' step=current_step|add:'-1' %}{% if vendor %}?vendor_id={{ vendor.id }}{% endif %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Previous
+                        </a>
+                    </div>
+                    <div>
+                        {% comment %} <button type="button" onclick="location.href='{% url 'vendors:vendor_wizard_step' step=current_step|add:'1' vendor_id=vendor.id %}'" class="btn btn-primary">
+                            Next <i class="bi bi-arrow-right"></i>
+                        </button> {% endcomment %}
+                        <button type="submit" name="save_and_continue" class="btn btn-primary">
+                                Next <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

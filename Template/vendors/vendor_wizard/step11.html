@@ -1,0 +1,82 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block step_content %}
+
+                {% comment %} {% url 'vendors:save_reference' vendor.id %} {% endcomment %}
+                <form method="post" action="">
+                    {% csrf_token %}
+                    
+                    <!-- SCIPL Employee Relations -->
+                    <div class="form-section">
+                        <h5 class="border-bottom pb-2">Relations with Steel Carriers Infrastructure Pvt. Ltd.</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">If any Director or Employee of SCIPL is related to your company:</label>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <input type="text" name="scip_employee_name" class="form-control" placeholder="Employee name" 
+                                           value="{{ reference_details.scip_employee_name|default:'' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" name="scip_employee_relation" class="form-control" placeholder="Relationship with vendor"
+                                           value="{{ reference_details.scip_employee_relation|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="form-text">Leave blank if not applicable</div>
+                        </div>
+                    </div>
+
+                    <!-- Ex-SCIPL Employee Information -->
+                    <div class="form-section">
+                        <h5 class="border-bottom pb-2">Ex-SCIPL Employees in Your Organization</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">If any ex-employee of SCIPL is employed with your company:</label>
+                            <div class="row mt-2">
+                                <div class="col-md-4">
+                                    <input type="text" name="ex_scip_employee_name" class="form-control" placeholder="Ex-employee name"
+                                           value="{{ reference_details.ex_scip_employee_name|default:'' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" name="ex_scip_employee_designation" class="form-control" placeholder="Designation in your company"
+                                           value="{{ reference_details.ex_scip_employee_designation|default:'' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" name="ex_scip_employee_department" class="form-control" placeholder="Department in your company"
+                                           value="{{ reference_details.ex_scip_employee_department|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="form-text">Leave blank if not applicable</div>
+                        </div>
+                    </div>
+
+                    <!-- Additional References -->
+                    <div class="form-section">
+                        <h5 class="border-bottom pb-2">Additional References</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Other References (if any):</label>
+                            <textarea class="form-control" rows="3" placeholder="Any other references or relations that should be disclosed..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <div>
+                            <a href="{% url 'vendors:vendor_wizard_step' step=current_step|add:'-1' %}{% if vendor %}?vendor_id={{ vendor.id }}{% endif %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Previous
+                            </a>
+                        </div>
+                        <div>
+                            <button type="submit" name="save_and_exit" class="btn btn-primary">
+                                Save & Exit
+                            </button>
+                            <button type="submit" name="save_and_continue" class="btn btn-primary">
+                                Save & Continue
+                            </button>
+                        </div>
+                    </div>
+                </form>
+          
+{% endblock %}

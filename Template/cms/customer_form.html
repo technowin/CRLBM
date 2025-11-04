@@ -1,0 +1,1447 @@
+<!-- templates/cms/customer_form.html -->
+{% extends "bootstrap/vertical_base.html" %}
+
+{% load humanize %}
+
+{% load custom_filters %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/mtp.css' %}" rel="stylesheet" type="text/css" >
+
+<style>
+    .tab-pane {
+        padding: 1.5rem 0;
+    }
+    
+    .duplicate-warning {
+        display: none;
+        font-size: 0.875rem;
+    }
+    
+    .form-section-card {
+        border-left: 4px solid #0d6efd;
+        background: var(--bs-light-bg-subtle);
+    }
+    
+    .address-card, .bank-card {
+        transition: all 0.3s ease;
+    }
+    
+    .address-card:hover, .bank-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .concern-categories {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.375rem;
+        padding: 1rem;
+    }
+</style>
+
+{% endblock %}
+{% block title %} Customer Form {% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+    <div class="row">
+        <div class="col">
+            <h4><i class="bi bi-file-earmark-text"></i> Customer Form </h4>
+        </div>
+        <div class="col-auto mt-2">
+            <div class="btn-group mb-2">
+                <a href="{% url 'cms:customer_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-pills bg-nav-pills nav-justified" id="customerTabs" role="tablist">
+                    {% comment %} <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" 
+                                data-bs-target="#basic" type="button" role="tab">
+                            <i class="bi bi-building me-1"></i>Basic Information
+                        </button>
+                    </li> {% endcomment %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" 
+                                data-bs-target="#general" type="button" role="tab">
+                            <i class="bi bi-info-circle me-1"></i>General Details
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" 
+                                data-bs-target="#contact" type="button" role="tab">
+                            <i class="bi bi-geo-alt me-1"></i>Address & Contact
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="bank-tab" data-bs-toggle="tab" 
+                                data-bs-target="#bank" type="button" role="tab">
+                            <i class="bi bi-bank me-1"></i>Bank Details
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="concern-tab" data-bs-toggle="tab" 
+                                data-bs-target="#concern" type="button" role="tab">
+                            <i class="bi bi-people me-1"></i>Concern Persons
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="division-tab" data-bs-toggle="tab" 
+                                data-bs-target="#division" type="button" role="tab">
+                            <i class="bi bi-diagram-3 me-1"></i>Business Divisions
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="card-body">
+                <form method="post" id="customerForm" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="tab-content" id="customerTabsContent">
+                        <!-- Basic Information Tab -->
+                        {% comment %} <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.organization_type.id_for_label }}" 
+                                           class="form-label required-field">
+                                        Type of Organization
+                                    </label>
+                                    {{ customer_form.organization_type }}
+                                    {% if customer_form.organization_type.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ customer_form.organization_type.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.name.id_for_label }}" 
+                                           class="form-label required-field">
+                                        Customer Name
+                                    </label>
+                                    {{ customer_form.name }}
+                                    <div class="duplicate-warning text-danger mt-1">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        A customer with this name already exists.
+                                    </div>
+                                    {% if customer_form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ customer_form.name.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.pan_number.id_for_label }}" 
+                                           class="form-label required-field">
+                                        PAN Number
+                                    </label>
+                                    {{ customer_form.pan_number }}
+                                    <div class="form-text">Format: ABCDE1234F</div>
+                                    {% if customer_form.pan_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ customer_form.pan_number.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch mt-4">
+                                        {{ customer_form.is_active }}
+                                        <label class="form-check-label" for="{{ customer_form.is_active.id_for_label }}">
+                                            Active Customer
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> {% endcomment %}
+                        
+                        <!-- General Details Tab -->
+                        <div class="tab-pane fade show active" id="general" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.organization_type.id_for_label }}" 
+                                           class="form-label required-field">
+                                        Type of Organization
+                                    </label>
+                                    {{ customer_form.organization_type }}
+                                    {% if customer_form.organization_type.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ customer_form.organization_type.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.name.id_for_label }}" 
+                                           class="form-label required-field">
+                                        Customer Name
+                                    </label>
+                                    {{ customer_form.name }}
+                                    <div class="duplicate-warning text-danger mt-1">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        A customer with this name already exists.
+                                    </div>
+                                    {% if customer_form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ customer_form.name.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.pan_number.id_for_label }}" 
+                                           class="form-label required-field">
+                                        PAN Number
+                                    </label>
+                                    {{ customer_form.pan_number }}
+                                    <div class="form-text">Format: ABCDE1234F</div>
+                                    {% if customer_form.pan_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ customer_form.pan_number.errors.0 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch mt-4">
+                                        {{ customer_form.is_active }}
+                                        <label class="form-check-label" for="{{ customer_form.is_active.id_for_label }}">
+                                            Active Customer
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.date_of_establishment.id_for_label }}" 
+                                           class="form-label">
+                                        Date of Establishment
+                                    </label>
+                                    {{ customer_form.date_of_establishment }}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.msme_udyam_reg_no.id_for_label }}" 
+                                           class="form-label">
+                                        MSME / Udyam Registration No.
+                                    </label>
+                                    {{ customer_form.msme_udyam_reg_no }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.tan_number.id_for_label }}" 
+                                           class="form-label">
+                                        TAN Number
+                                    </label>
+                                    {{ customer_form.tan_number }}
+                                    <div class="form-text">Format: ABCD12345E</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.cin_number.id_for_label }}" 
+                                           class="form-label">
+                                        CIN Number
+                                    </label>
+                                    {{ customer_form.cin_number }}
+                                    <div class="form-text">For companies registered under MCA</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.ie_code.id_for_label }}" 
+                                           class="form-label">
+                                        Import Export Code
+                                    </label>
+                                    {{ customer_form.ie_code }}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ customer_form.website.id_for_label }}" 
+                                           class="form-label">
+                                        Website
+                                    </label>
+                                    {{ customer_form.website }}
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h6 class="section-title">Financial Settings</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ customer_form.billing_currency.id_for_label }}" 
+                                           class="form-label">
+                                        Billing Currency
+                                    </label>
+                                    {{ customer_form.billing_currency }}
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ customer_form.payment_terms.id_for_label }}" 
+                                           class="form-label">
+                                        Payment Terms
+                                    </label>
+                                    {{ customer_form.payment_terms }}
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ customer_form.credit_limit.id_for_label }}" 
+                                           class="form-label">
+                                        Credit Limit (₹)
+                                    </label>
+                                    {{ customer_form.credit_limit }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ customer_form.requires_advance }}
+                                        <label class="form-check-label" for="{{ customer_form.requires_advance.id_for_label }}">
+                                            Requires Advance Payment
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h6 class="section-title">Billing Contact</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ customer_form.billing_contact_person.id_for_label }}" 
+                                           class="form-label">
+                                        Contact Person
+                                    </label>
+                                    {{ customer_form.billing_contact_person }}
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ customer_form.billing_contact_email.id_for_label }}" 
+                                           class="form-label">
+                                        Email
+                                    </label>
+                                    {{ customer_form.billing_contact_email }}
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ customer_form.billing_contact_phone.id_for_label }}" 
+                                           class="form-label">
+                                        Phone
+                                    </label>
+                                    {{ customer_form.billing_contact_phone }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="{{ customer_form.exemption_certificates.id_for_label }}" 
+                                           class="form-label">
+                                        Exemption Certificates
+                                    </label>
+                                    {{ customer_form.exemption_certificates }}
+                                    <div class="form-text">List any GST/TDS exemption certificates</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Address & Contact Tab -->
+                        <div class="tab-pane fade" id="contact" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="mb-0">Customer Addresses</h4>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Address
+                                </button>
+                            </div>
+                            
+                            <!-- Addresses Container -->
+                            <div id="addresses-container" class="row">
+                                {% for address_form in address_forms %}
+                                <div class="col-md-6 mb-3 address-item" data-address-id="{{ address_form.instance.id|default:'' }}">
+                                    <div class="card address-card h-100 {% if address_form.is_primary.value %}border-primary{% endif %}">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <strong>{{ address_form.branch_category.value|default:"New Address" }}</strong>
+                                            {% if address_form.is_primary.value %}
+                                            <span class="badge bg-primary">Primary</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-body">
+                                            {{ address_form.id }}
+                                            <div class="row">
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label ">Branch Category</label>
+                                                    {{ address_form.branch_category }}
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label ">Address</label>
+                                                    {{ address_form.address }}
+                                                </div>
+                                                <div class="col-md-6 mb-2">
+                                                    <label class="form-label ">State</label>
+                                                    {{ address_form.state }}
+                                                </div>
+                                                <div class="col-md-6 mb-2">
+                                                    <label class="form-label ">Country</label>
+                                                    {{ address_form.country }}
+                                                </div>
+                                                <div class="col-md-4 mb-2">
+                                                    <label class="form-label ">Pincode</label>
+                                                    {{ address_form.pincode }}
+                                                </div>
+                                                <div class="col-md-8 mb-2">
+                                                    <label class="form-label ">Location</label>
+                                                    {{ address_form.location }}
+                                                </div>
+                                                <div class="col-md-6 mb-2">
+                                                    <label class="form-label ">GST Number</label>
+                                                    {{ address_form.gst_number }}
+                                                </div>
+                                                <div class="col-md-6 mb-2">
+                                                    <label class="form-label ">Telephone</label>
+                                                    {{ address_form.telephone }}
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label ">Email</label>
+                                                    {{ address_form.email }}
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-check form-switch">
+                                                        {{ address_form.is_primary }}
+                                                        <label class="form-check-label " for="{{ address_form.is_primary.id_for_label }}">
+                                                            Primary Address
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        {{ address_form.is_active }}
+                                                        <label class="form-check-label " for="{{ address_form.is_active.id_for_label }}">
+                                                            Active
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                       <div class="card-footer text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-danger remove-address" 
+                                                        data-address-id="{{ address_form.instance.id|default:'' }}">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <div class="alert alert-info text-center">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        No addresses added yet. Click "Add Address" to get started.
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                <strong>Tip:</strong> Add at least one primary address for billing and communication purposes.
+                            </div>
+                        </div>
+                        
+                        <!-- Bank Details Tab -->
+                        <div class="tab-pane fade" id="bank" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="mb-0">Bank Accounts</h4>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addBankModal">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Bank Account
+                                </button>
+                            </div>
+                            
+                            <!-- Bank Details Container -->
+                            <div id="bank-details-container" class="row">
+                                {% for bank_form in bank_forms %}
+                                <div class="col-md-6 mb-3 bank-item" data-bank-id="{{ bank_form.instance.id|default:'' }}">
+                                    <div class="card bank-card h-100 {% if bank_form.is_primary.value %}border-primary{% endif %}">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <strong>{{ bank_form.bank_name.value|default:"New Bank Account" }}</strong>
+                                            {% if bank_form.is_primary.value %}
+                                            <span class="badge bg-primary">Primary</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-body">
+                                            {{ bank_form.id }}
+                                            <div class="row">
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label ">Bank Name</label>
+                                                    {{ bank_form.bank_name }}
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label ">Account Number</label>
+                                                    {{ bank_form.account_number }}
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label ">Account Holder Name</label>
+                                                    {{ bank_form.account_holder_name }}
+                                                </div>
+                                                <div class="col-md-8 mb-2">
+                                                    <label class="form-label ">Branch Name</label>
+                                                    {{ bank_form.branch_name }}
+                                                </div>
+                                                <div class="col-md-4 mb-2">
+                                                    <label class="form-label ">IFSC Code</label>
+                                                    {{ bank_form.ifsc_code }}
+                                                </div>
+                                                <div class="col-md-6 mb-2">
+                                                    <label class="form-label ">Account Type</label>
+                                                    {{ bank_form.account_type }}
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-check form-switch">
+                                                        {{ bank_form.is_primary }}
+                                                        <label class="form-check-label " for="{{ bank_form.is_primary.id_for_label }}">
+                                                            Primary Account
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        {{ bank_form.is_active }}
+                                                        <label class="form-check-label " for="{{ bank_form.is_active.id_for_label }}">
+                                                            Active
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-danger remove-bank" 
+                                                        data-bank-id="{{ bank_form.instance.id|default:'' }}">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <div class="alert alert-info text-center">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        No bank accounts added yet. Click "Add Bank Account" to get started.
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                <strong>Tip:</strong> Designate one bank account as primary for payment processing.
+                            </div>
+                        </div>
+                        
+                        <!-- Concern Persons Tab -->
+                        <div class="tab-pane fade" id="concern" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="mb-0">Concern Persons</h4>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addConcernModal">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Concern Person
+                                </button>
+                            </div>
+                            
+                            <!-- Concern Persons Container -->
+                            <div id="concern-persons-container" class="row">
+                                {% for concern_form in concern_forms %}
+                                <div class="col-12 mb-3 concern-item" data-concern-id="{{ concern_form.instance.id|default:'' }}">
+                                    <div class="card concern-card h-100 {% if concern_form.is_primary_contact.value %}border-primary{% endif %}">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <strong>{{ concern_form.concern_person.value|default:"New Concern Person" }}</strong>
+                                            {% if concern_form.is_primary_contact.value %}
+                                            <span class="badge bg-primary">Primary Contact</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-body">
+                                            {{ concern_form.id }}
+                                            <div class="row">
+                                                <div class="col-md-6 mb-2">
+                                                    <label class="form-label ">Concern Person Name</label>
+                                                    {{ concern_form.concern_person }}
+                                                </div>
+                                                <div class="col-md-6 mb-2">
+                                                    <label class="form-label ">Designation</label>
+                                                    {{ concern_form.designation }}
+                                                </div>
+                                                <div class="col-md-4 mb-2">
+                                                    <label class="form-label ">Primary Mobile</label>
+                                                    {{ concern_form.mobile_1 }}
+                                                </div>
+                                                <div class="col-md-4 mb-2">
+                                                    <label class="form-label ">Secondary Mobile</label>
+                                                    {{ concern_form.mobile_2 }}
+                                                </div>
+                                                <div class="col-md-4 mb-2">
+                                                    <label class="form-label ">Company Email</label>
+                                                    {{ concern_form.email_company }}
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label ">Personal Email</label>
+                                                    {{ concern_form.email_personal }}
+                                                </div>
+                                                <div class="col-md-6 mb-2">
+                                                    <label class="form-label ">Office Phone 1</label>
+                                                    {{ concern_form.office_phone_1 }}
+                                                </div>
+                                                <div class="col-md-3 mb-2">
+                                                    <label class="form-label ">Extension</label>
+                                                    {{ concern_form.office_extension_1 }}
+                                                </div>
+                                                <div class="col-md-3 mb-2">
+                                                    <label class="form-label ">Office Phone 2</label>
+                                                    {{ concern_form.office_phone_2 }}
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label ">Remarks</label>
+                                                    {{ concern_form.remarks }}
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-check form-switch">
+                                                        {{ concern_form.is_active }}
+                                                        <label class="form-check-label " for="{{ concern_form.is_active.id_for_label }}">
+                                                            Active
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        {{ concern_form.is_primary_contact }}
+                                                        <label class="form-check-label " for="{{ concern_form.is_primary_contact.id_for_label }}">
+                                                            Primary Contact
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-danger remove-concern" 
+                                                        data-concern-id="{{ concern_form.instance.id|default:'' }}">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12">
+                                    <div class="alert alert-info text-center">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        No concern persons added yet. Click "Add Concern Person" to get started.
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                <strong>Tip:</strong> Add key contact persons for different departments or functions.
+                            </div>
+                        </div>
+                        
+                        <!-- Business Divisions Tab -->
+                        <div class="tab-pane fade" id="division" role="tabpanel">
+                            <h4 class="section-title">Assign Business Divisions</h4>
+                            <p class="text-muted mb-4">Select the divisions this customer belongs to:</p>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="selectAllDivisions">
+                                        <label class="form-check-label fw-bold" for="selectAllDivisions">
+                                            Select All Divisions
+                                        </label>
+                                    </div>
+                                    
+                                    <hr>
+                                    
+                                    <div class="row">
+                                        {% for division in division_form.divisions %}
+                                        <div class="col-md-6 col-lg-4 mb-3">
+                                            <div class="form-check">
+                                                {{ division.tag }}
+                                                <label class="form-check-label" for="{{ division.id_for_label }}">
+                                                    {{ division.choice_label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        {% empty %}
+                                        <div class="col-12">
+                                            <div class="alert alert-warning">
+                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                No divisions available. Please add divisions in the admin panel.
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info mt-4">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Note:</strong> Divisions help categorize customers for reporting and targeted communications.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="reset" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    {% if customer %}Update Customer{% else %}Create Customer{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Customer Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newAddressForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Branch Category</label>
+                            <select name="branch_category" class="form-select" required>
+                                <option value="">Select Category</option>
+                                <option value="registered_office">Registered Office/Head Office</option>
+                                <option value="branch_office">Regional/Branch Office</option>
+                                <option value="factory">Factory/Mfg. Facility</option>
+                                <option value="warehouse">Godown/Warehouse</option>
+                                <option value="project_site">Job Site/Project Site</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" name="is_primary">
+                                <label class="form-check-label">Primary Address</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea name="address" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">State/UT</label>
+                            <select name="state" class="form-select" required>
+                                <option value="">Select State</option>
+                                {% for state in states %}
+                                <option value="{{ state.id }}">{{ state.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Country</label>
+                            <select name="country" class="form-select" required>
+                                <option value="">Select Country</option>
+                                {% for country in countries %}
+                                <option value="{{ country.id }}">{{ country.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Pincode</label>
+                            <input type="text" name="pincode" class="form-control" required>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">GST Number</label>
+                            <input type="text" name="gst_number" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Telephone</label>
+                            <input type="text" name="telephone" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Google Location</label>
+                            <input type="text" name="google_location" class="form-control" placeholder="Enter Google Maps location">
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="saveAddress">
+                                    <i class="bi bi-check-circle me-1"></i>Add Address
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Bank Modal -->
+<div class="modal fade" id="addBankModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Bank Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newBankForm">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Bank Name</label>
+                            <input type="text" name="bank_name" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Account Number</label>
+                            <input type="text" name="account_number" class="form-control" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Account Type</label>
+                            <select name="account_type" class="form-select" required>
+                                <option value="current">Current Account</option>
+                                <option value="savings">Savings Account</option>
+                                <option value="cc">Cash Credit</option>
+                                <option value="od">Overdraft</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Account Holder Name</label>
+                            <input type="text" name="account_holder_name" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Branch Name</label>
+                            <input type="text" name="branch_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">IFSC Code</label>
+                            <input type="text" name="ifsc_code" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_primary">
+                                <label class="form-check-label">Primary Bank Account</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_active" checked>
+                                <label class="form-check-label">Active</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="saveBank">
+                                    <i class="bi bi-check-circle me-1"></i>Add Bank Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Concern Modal -->
+<div class="modal fade" id="addConcernModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Concern Person</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newConcernForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Concern Person Name</label>
+                            <input type="text" name="concern_person" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Designation</label>
+                            <input type="text" name="designation" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Primary Mobile</label>
+                            <input type="text" name="mobile_1" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Secondary Mobile</label>
+                            <input type="text" name="mobile_2" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Company Email</label>
+                            <input type="email" name="email_company" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Personal Email</label>
+                            <input type="email" name="email_personal" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Office Phone 1</label>
+                            <input type="text" name="office_phone_1" class="form-control">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Extension</label>
+                            <input type="text" name="office_extension_1" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Office Phone 2</label>
+                            <input type="text" name="office_phone_2" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Remarks</label>
+                            <textarea name="remarks" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_active" checked>
+                                <label class="form-check-label">Active</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_primary_contact">
+                                <label class="form-check-label">Primary Contact</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="saveConcern">
+                                    <i class="bi bi-check-circle me-1"></i>Add Concern Person
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+{% if messages %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      {% for message in messages %}
+        Swal.fire({
+          title: "{{ message.tags|title }}",
+          text: "{{ message|escapejs }}",
+          icon: "{{ message.tags }}", // valid: success, error, warning, info, question
+          confirmButtonText: "OK",
+          background: theme === 'dark' ? '#343a40' : '#ffffff',
+          color: theme === 'dark' ? '#f8f9fa' : '#212529',
+          confirmButtonColor: theme === 'dark' ? '#0d6efd' : '#0d6efd',
+          customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+          }
+        });
+      {% endfor %}
+    });
+  </script>
+{% endif %}
+
+<script>
+    // Customer name duplicate check
+    document.getElementById('{{ customer_form.name.id_for_label }}').addEventListener('blur', function() {
+        const name = this.value;
+        const customerId = '{{ customer.pk|default:"" }}';
+        
+        if (name.length > 0) {
+            fetch('{% url "cms:check_customer_name" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `name=${encodeURIComponent(name)}&customer_id=${customerId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const warning = document.querySelector('.duplicate-warning');
+                if (data.exists) {
+                    warning.style.display = 'block';
+                } else {
+                    warning.style.display = 'none';
+                }
+            });
+        }
+    });
+
+    // Select all divisions
+    document.getElementById('selectAllDivisions').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('input[name="divisions"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+
+    // Tab form validation
+    const form = document.getElementById('customerForm');
+    form.addEventListener('submit', function(event) {
+        let isValid = true;
+        const activeTab = document.querySelector('.tab-pane.active');
+        
+        // Basic validation for active tab
+        const requiredFields = activeTab.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('is-invalid');
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            event.preventDefault();
+            // Show error message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show';
+            alert.innerHTML = `
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Please fill all required fields in the current tab.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            form.prepend(alert);
+        }
+    });
+
+    // Address Management
+    let addressCounter = {{ address_forms|length|default:0 }};
+    
+    document.getElementById('saveAddress').addEventListener('click', function() {
+        const formData = new FormData(document.getElementById('newAddressForm'));
+        const addressData = {};
+        for (let [key, value] of formData.entries()) {
+            addressData[key] = value;
+        }
+        
+        addAddressToForm(addressData);
+        bootstrap.Modal.getInstance(document.getElementById('addAddressModal')).hide();
+        document.getElementById('newAddressForm').reset();
+    });
+
+    function addAddressToForm(data) {
+        addressCounter++;
+        const addressId = `address-${addressCounter}`;
+        
+        const addressHtml = `
+            <div class="col-md-6 mb-3 address-item" data-address-id="${addressId}">
+                <div class="card address-card h-100 ${data.is_primary ? 'border-primary' : ''}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>${data.branch_category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong>
+                        ${data.is_primary ? '<span class="badge bg-primary">Primary</span>' : ''}
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" name="addresses-${addressCounter}-branch_category" value="${data.branch_category}">
+                        <input type="hidden" name="addresses-${addressCounter}-address" value="${data.address}">
+                        <input type="hidden" name="addresses-${addressCounter}-state" value="${data.state}">
+                        <input type="hidden" name="addresses-${addressCounter}-country" value="${data.country}">
+                        <input type="hidden" name="addresses-${addressCounter}-pincode" value="${data.pincode}">
+                        <input type="hidden" name="addresses-${addressCounter}-location" value="${data.location}">
+                        <input type="hidden" name="addresses-${addressCounter}-gst_number" value="${data.gst_number || ''}">
+                        <input type="hidden" name="addresses-${addressCounter}-telephone" value="${data.telephone || ''}">
+                        <input type="hidden" name="addresses-${addressCounter}-email" value="${data.email || ''}">
+                        <input type="hidden" name="addresses-${addressCounter}-google_location" value="${data.google_location || ''}">
+                        <input type="hidden" name="addresses-${addressCounter}-is_primary" value="${data.is_primary ? 'on' : ''}">
+                        <input type="hidden" name="addresses-${addressCounter}-is_active" value="on">
+                        
+                        <div class="">
+                            <p><strong>Address:</strong> ${data.address}</p>
+                            <p><strong>Location:</strong> ${data.location}, ${data.pincode}</p>
+                            <p><strong>State:</strong> ${getSelectedText('state', data.state)}</p>
+                            <p><strong>Country:</strong> ${getSelectedText('country', data.country)}</p>
+                            ${data.gst_number ? `<p><strong>GST:</strong> ${data.gst_number}</p>` : ''}
+                            ${data.telephone ? `<p><strong>Phone:</strong> ${data.telephone}</p>` : ''}
+                            ${data.email ? `<p><strong>Email:</strong> ${data.email}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-danger remove-address" data-address-id="${addressId}">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('addresses-container').insertAdjacentHTML('beforeend', addressHtml);
+        
+        // If no addresses were present, remove the empty message
+        const emptyMessage = document.querySelector('#addresses-container .alert');
+        if (emptyMessage) {
+            emptyMessage.remove();
+        }
+    }
+
+    // Bank Management
+    let bankCounter = {{ bank_forms|length|default:0 }};
+    
+    document.getElementById('saveBank').addEventListener('click', function() {
+        const formData = new FormData(document.getElementById('newBankForm'));
+        const bankData = {};
+        for (let [key, value] of formData.entries()) {
+            bankData[key] = value;
+        }
+        
+        addBankToForm(bankData);
+        bootstrap.Modal.getInstance(document.getElementById('addBankModal')).hide();
+        document.getElementById('newBankForm').reset();
+    });
+
+    function addBankToForm(data) {
+        bankCounter++;
+        const bankId = `bank-${bankCounter}`;
+        
+        const bankHtml = `
+            <div class="col-md-6 mb-3 bank-item" data-bank-id="${bankId}">
+                <div class="card bank-card h-100 ${data.is_primary ? 'border-primary' : ''}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>${data.bank_name}</strong>
+                        ${data.is_primary ? '<span class="badge bg-primary">Primary</span>' : ''}
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" name="bank_details-${bankCounter}-bank_name" value="${data.bank_name}">
+                        <input type="hidden" name="bank_details-${bankCounter}-account_number" value="${data.account_number}">
+                        <input type="hidden" name="bank_details-${bankCounter}-account_holder_name" value="${data.account_holder_name || ''}">
+                        <input type="hidden" name="bank_details-${bankCounter}-branch_name" value="${data.branch_name}">
+                        <input type="hidden" name="bank_details-${bankCounter}-ifsc_code" value="${data.ifsc_code}">
+                        <input type="hidden" name="bank_details-${bankCounter}-account_type" value="${data.account_type}">
+                        <input type="hidden" name="bank_details-${bankCounter}-is_primary" value="${data.is_primary ? 'on' : ''}">
+                        <input type="hidden" name="bank_details-${bankCounter}-is_active" value="${data.is_active ? 'on' : ''}">
+                        
+                        <div class="">
+                            <p><strong>Account Number:</strong> ${data.account_number}</p>
+                            <p><strong>Branch:</strong> ${data.branch_name}</p>
+                            <p><strong>IFSC:</strong> ${data.ifsc_code}</p>
+                            <p><strong>Type:</strong> ${data.account_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+                            ${data.account_holder_name ? `<p><strong>Account Holder:</strong> ${data.account_holder_name}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-danger remove-bank" data-bank-id="${bankId}">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('bank-details-container').insertAdjacentHTML('beforeend', bankHtml);
+        
+        // If no bank details were present, remove the empty message
+        const emptyMessage = document.querySelector('#bank-details-container .alert');
+        if (emptyMessage) {
+            emptyMessage.remove();
+        }
+    }
+
+    // Concern Person Management
+    let concernCounter = {{ concern_forms|length|default:0 }};
+    
+    document.getElementById('saveConcern').addEventListener('click', function() {
+        const formData = new FormData(document.getElementById('newConcernForm'));
+        const concernData = {};
+        for (let [key, value] of formData.entries()) {
+            concernData[key] = value;
+        }
+        
+        addConcernToForm(concernData);
+        bootstrap.Modal.getInstance(document.getElementById('addConcernModal')).hide();
+        document.getElementById('newConcernForm').reset();
+    });
+
+    function addConcernToForm(data) {
+        concernCounter++;
+        const concernId = `concern-${concernCounter}`;
+        
+        const concernHtml = `
+            <div class="col-12 mb-3 concern-item" data-concern-id="${concernId}">
+                <div class="card concern-card h-100 ${data.is_primary_contact ? 'border-primary' : ''}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>${data.concern_person}</strong>
+                        ${data.is_primary_contact ? '<span class="badge bg-primary">Primary Contact</span>' : ''}
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" name="concern_persons-${concernCounter}-concern_person" value="${data.concern_person}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-designation" value="${data.designation || ''}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-mobile_1" value="${data.mobile_1}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-mobile_2" value="${data.mobile_2 || ''}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-email_company" value="${data.email_company || ''}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-email_personal" value="${data.email_personal || ''}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-office_phone_1" value="${data.office_phone_1 || ''}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-office_extension_1" value="${data.office_extension_1 || ''}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-office_phone_2" value="${data.office_phone_2 || ''}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-remarks" value="${data.remarks || ''}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-is_active" value="${data.is_active ? 'on' : ''}">
+                        <input type="hidden" name="concern_persons-${concernCounter}-is_primary_contact" value="${data.is_primary_contact ? 'on' : ''}">
+                        
+                        <div class="">
+                            <p><strong>Designation:</strong> ${data.designation || 'Not specified'}</p>
+                            <p><strong>Primary Mobile:</strong> ${data.mobile_1}</p>
+                            ${data.mobile_2 ? `<p><strong>Secondary Mobile:</strong> ${data.mobile_2}</p>` : ''}
+                            ${data.email_company ? `<p><strong>Company Email:</strong> ${data.email_company}</p>` : ''}
+                            ${data.email_personal ? `<p><strong>Personal Email:</strong> ${data.email_personal}</p>` : ''}
+                            ${data.office_phone_1 ? `<p><strong>Office Phone:</strong> ${data.office_phone_1} ${data.office_extension_1 ? `Ext: ${data.office_extension_1}` : ''}</p>` : ''}
+                            ${data.remarks ? `<p><strong>Remarks:</strong> ${data.remarks}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-danger remove-concern" data-concern-id="${concernId}">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('concern-persons-container').insertAdjacentHTML('beforeend', concernHtml);
+        
+        // If no concern persons were present, remove the empty message
+        const emptyMessage = document.querySelector('#concern-persons-container .alert');
+        if (emptyMessage) {
+            emptyMessage.remove();
+        }
+    }
+
+    // Remove item functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-address') || e.target.closest('.remove-address')) {
+            const button = e.target.classList.contains('remove-address') ? e.target : e.target.closest('.remove-address');
+            const addressId = button.dataset.addressId;
+            document.querySelector(`[data-address-id="${addressId}"]`).remove();
+            
+            // Show empty message if no addresses left
+            if (document.querySelectorAll('.address-item').length === 0) {
+                document.getElementById('addresses-container').innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No addresses added yet. Click "Add Address" to get started.
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        if (e.target.classList.contains('remove-bank') || e.target.closest('.remove-bank')) {
+            const button = e.target.classList.contains('remove-bank') ? e.target : e.target.closest('.remove-bank');
+            const bankId = button.dataset.bankId;
+            document.querySelector(`[data-bank-id="${bankId}"]`).remove();
+            
+            // Show empty message if no bank details left
+            if (document.querySelectorAll('.bank-item').length === 0) {
+                document.getElementById('bank-details-container').innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No bank accounts added yet. Click "Add Bank Account" to get started.
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        if (e.target.classList.contains('remove-concern') || e.target.closest('.remove-concern')) {
+            const button = e.target.classList.contains('remove-concern') ? e.target : e.target.closest('.remove-concern');
+            const concernId = button.dataset.concernId;
+            document.querySelector(`[data-concern-id="${concernId}"]`).remove();
+            
+            // Show empty message if no concern persons left
+            if (document.querySelectorAll('.concern-item').length === 0) {
+                document.getElementById('concern-persons-container').innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No concern persons added yet. Click "Add Concern Person" to get started.
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    });
+
+    // Helper function to get selected text
+    function getSelectedText(selectName, value) {
+        const select = document.querySelector(`[name="${selectName}"]`);
+        if (select) {
+            const option = select.querySelector(`option[value="${value}"]`);
+            return option ? option.textContent : value;
+        }
+        return value;
+    }
+
+    // Input validation
+    document.addEventListener('input', function(e) {
+        // Mobile number validation
+        if (e.target.name === 'mobile_1' || e.target.name === 'mobile_2') {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+        }
+        
+        // PAN number uppercase
+        if (e.target.name === 'pan_number') {
+            e.target.value = e.target.value.toUpperCase();
+        }
+        
+        // IFSC code uppercase
+        if (e.target.name === 'ifsc_code') {
+            e.target.value = e.target.value.toUpperCase();
+        }
+        
+        // GST number uppercase
+        if (e.target.name === 'gst_number') {
+            e.target.value = e.target.value.toUpperCase();
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+<script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+<script src="{% static 'js/vendor/select2.min.js' %}"></script>
+{% endblock %}

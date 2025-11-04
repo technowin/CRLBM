@@ -1,0 +1,136 @@
+<!-- templates/cms/partials/edit_bank_modal.html -->
+<div class="modal fade" id="editBankModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Bank Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="editBankModalBody">
+                <!-- Bank form will be loaded here via AJAX -->
+                <form method="post" id="editBankForm">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="edit_bank_name" class="form-label">Bank Name</label>
+                            <input type="text" name="bank_name" id="edit_bank_name" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="edit_account_number" class="form-label">Account Number</label>
+                            <input type="text" name="account_number" id="edit_account_number" class="form-control" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="edit_account_type" class="form-label">Account Type</label>
+                            <select name="account_type" id="edit_account_type" class="form-select" required>
+                                <option value="current">Current Account</option>
+                                <option value="savings">Savings Account</option>
+                                <option value="cc">Cash Credit</option>
+                                <option value="od">Overdraft</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="edit_account_holder_name" class="form-label">Account Holder Name</label>
+                            <input type="text" name="account_holder_name" id="edit_account_holder_name" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="edit_branch_name" class="form-label">Branch Name</label>
+                            <input type="text" name="branch_name" id="edit_branch_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="edit_ifsc_code" class="form-label">IFSC Code</label>
+                            <input type="text" name="ifsc_code" id="edit_ifsc_code" class="form-control" required oninput="this.value = this.value.toUpperCase()">
+                            <div class="form-text">Format: ABCD0123456</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_primary" id="edit_bank_is_primary">
+                                <label class="form-check-label" for="edit_bank_is_primary">Primary Bank Account</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_active" id="edit_bank_is_active" checked>
+                                <label class="form-check-label" for="edit_bank_is_active">Active</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="bank_id" id="edit_bank_id">
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-1"></i>Update Bank Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editBankForm = document.getElementById('editBankForm');
+    
+    if (editBankForm) {
+        editBankForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const bankId = document.getElementById('edit_bank_id').value;
+            
+            fetch(`/cms/bank-details/${bankId}/update/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editBankModal'));
+                    modal.hide();
+                    location.reload();
+                } else {
+                    alert('Error updating bank account. Please check the form.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating bank account. Please try again.');
+            });
+        });
+    }
+
+    // Populate form when editing a bank account
+    window.populateBankForm = function(bankData) {
+        document.getElementById('edit_bank_id').value = bankData.id;
+        document.getElementById('edit_bank_name').value = bankData.bank_name;
+        document.getElementById('edit_account_number').value = bankData.account_number;
+        document.getElementById('edit_account_type').value = bankData.account_type;
+        document.getElementById('edit_account_holder_name').value = bankData.account_holder_name || '';
+        document.getElementById('edit_branch_name').value = bankData.branch_name;
+        document.getElementById('edit_ifsc_code').value = bankData.ifsc_code;
+        document.getElementById('edit_bank_is_primary').checked = bankData.is_primary;
+        document.getElementById('edit_bank_is_active').checked = bankData.is_active;
+    };
+});
+</script>

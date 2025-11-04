@@ -1,0 +1,134 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block step_content %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- PAN Details -->
+                    <div class="form-section">
+                        <h5 class="border-bottom pb-2">PAN Details</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.pan_number.id_for_label }}" class="form-label">PAN Number *</label>
+                                    {{ form.pan_number }}
+                                    <div class="form-text">Format: ABCDE1234F</div>
+                                    {% if form.pan_number.errors %}
+                                    <div class="text-danger">{{ form.pan_number.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.pan_copy.id_for_label }}" class="form-label">PAN Copy</label>
+                                    {{ form.pan_copy }}
+                                    {% if form.pan_copy.errors %}
+                                    <div class="text-danger">{{ form.pan_copy.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MSME Details -->
+                    <div class="form-section">
+                        <h5 class="border-bottom pb-2">MSME Registration (Optional)</h5>
+                        
+                        <div class="mb-3 form-check form-switch">
+                            {{ form.is_msme }}
+                            <label class="form-check-label" for="{{ form.is_msme.id_for_label }}">
+                                Registered as MSME
+                            </label>
+                        </div>
+
+                        <div id="msme-fields" style="display: {% if form.is_msme.value %}block{% else %}none{% endif %};">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.msme_type.id_for_label }}" class="form-label">MSME Type</label>
+                                        {{ form.msme_type }}
+                                        {% if form.msme_type.errors %}
+                                        <div class="text-danger">{{ form.msme_type.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.msme_number.id_for_label }}" class="form-label">MSME Number</label>
+                                        {{ form.msme_number }}
+                                        {% if form.msme_number.errors %}
+                                        <div class="text-danger">{{ form.msme_number.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.msme_validity.id_for_label }}" class="form-label">MSME Validity</label>
+                                        {{ form.msme_validity }}
+                                        {% if form.msme_validity.errors %}
+                                        <div class="text-danger">{{ form.msme_validity.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.msme_certificate.id_for_label }}" class="form-label">MSME Certificate</label>
+                                        {{ form.msme_certificate }}
+                                        {% if form.msme_certificate.errors %}
+                                        <div class="text-danger">{{ form.msme_certificate.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <div>
+                            <a href="{% url 'vendors:vendor_wizard_step' step=current_step|add:'-1' %}{% if vendor %}?vendor_id={{ vendor.id }}{% endif %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Previous
+                            </a>
+                        </div>
+                        <div>
+                            <button type="submit" name="save_and_exit" class="btn btn-primary">
+                                Save & Exit
+                            </button>
+                            <button type="submit" name="save_and_continue" class="btn btn-primary">
+                                Next <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+           
+
+<script>
+function toggleMSMEFields(checkbox) {
+    const msmeFields = document.getElementById('msme-fields');
+    if (checkbox.checked) {
+        msmeFields.style.display = 'block';
+    } else {
+        msmeFields.style.display = 'none';
+    }
+}
+
+// PAN validation
+document.getElementById('{{ form.pan_number.id_for_label }}').addEventListener('blur', function() {
+    const pan = this.value.toUpperCase();
+    if (pan.length === 10) {
+        // Validate PAN format
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panRegex.test(pan)) {
+            alert('Please enter a valid PAN number (Format: ABCDE1234F)');
+        }
+    }
+});
+</script>
+
+{% endblock %}
+

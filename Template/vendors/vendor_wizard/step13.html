@@ -1,0 +1,189 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block step_content %}
+
+                {% comment %} {% url 'vendors:save_manpower' vendor.id %} {% endcomment %}
+                <form method="post" action="">
+    {% csrf_token %}
+
+    <!-- Total Organization Strength -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label for="{{ form.total_strength.id_for_label }}" class="form-label fw-semibold">
+                Total Organization Strength
+            </label>
+            {{ form.total_strength }}
+        </div>
+    </div>
+
+    <h5 class="border-bottom pb-2 mb-3 fw-bold">Key Personnel Details</h5>
+
+    <div class="row g-4">
+        <!-- Reusable pattern for each category -->
+        <!-- Resident Managers -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Resident Managers / Engineers</h5>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label class="form-label  ">Count</label>
+                            {{ form.resident_managers }}
+                        </div>
+                        <div class="col-8">
+                            <label class="form-label  ">Qualification</label>
+                            {{ form.resident_managers_qualification }}
+                            <label class="form-label   mt-2">Experience</label>
+                            {{ form.resident_managers_experience }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Site Engineers -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Site Engineers</h5>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label class="form-label  ">Count</label>
+                            {{ form.site_engineers }}
+                        </div>
+                        <div class="col-8">
+                            <label class="form-label  ">Qualification</label>
+                            {{ form.site_engineers_qualification }}
+                            <label class="form-label   mt-2">Experience</label>
+                            {{ form.site_engineers_experience }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quality Engineers -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Quality Engineers</h5>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label class="form-label  ">Count</label>
+                            {{ form.quality_engineers }}
+                        </div>
+                        <div class="col-8">
+                            <label class="form-label  ">Qualification</label>
+                            {{ form.quality_engineers_qualification }}
+                            <label class="form-label   mt-2">Experience</label>
+                            {{ form.quality_engineers_experience }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Coordinators -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Safety Coordinators</h5>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label class="form-label  ">Count</label>
+                            {{ form.safety_coordinators }}
+                        </div>
+                        <div class="col-8">
+                            <label class="form-label  ">Qualification</label>
+                            {{ form.safety_coordinators_qualification }}
+                            <label class="form-label   mt-2">Experience</label>
+                            {{ form.safety_coordinators_experience }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supervisors -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Supervisors</h5>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label class="form-label  ">Count</label>
+                            {{ form.supervisors }}
+                        </div>
+                        <div class="col-8">
+                            <label class="form-label  ">Qualification</label>
+                            {{ form.supervisors_qualification }}
+                            <label class="form-label   mt-2">Experience</label>
+                            {{ form.supervisors_experience }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skilled Workmen -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Skilled Workmen</h5>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label class="form-label  ">Count</label>
+                            {{ form.skilled_workmen }}
+                        </div>
+                        <div class="col-8">
+                            <label class="form-label  ">Qualification</label>
+                            {{ form.skilled_workmen_qualification }}
+                            <label class="form-label   mt-2">Experience</label>
+                            {{ form.skilled_workmen_experience }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Others -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Others</h5>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label class="form-label  ">Count</label>
+                            {{ form.others }}
+                        </div>
+                        <div class="col-8">
+                            <label class="form-label  ">Qualification</label>
+                            {{ form.others_qualification }}
+                            <label class="form-label   mt-2">Experience</label>
+                            {{ form.others_experience }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'vendors:vendor_wizard_step' step=current_step|add:'-1' %}{% if vendor %}?vendor_id={{ vendor.id }}{% endif %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Previous
+        </a>
+        <div>
+            <button type="submit" name="save_and_exit" class="btn btn-primary me-2">
+                Save & Exit
+            </button>
+            <button type="submit" name="save_and_continue" class="btn btn-primary">
+                Save & Continue
+            </button>
+        </div>
+    </div>
+</form>
+
+            
+{% endblock %}

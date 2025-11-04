@@ -1,0 +1,174 @@
+<!-- templates/cms/partials/edit_address_modal.html -->
+<div class="modal fade" id="editAddressModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="editAddressModalBody">
+                <!-- Address form will be loaded here via AJAX -->
+                <form method="post" id="editAddressForm">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_branch_category" class="form-label">Branch Category</label>
+                            <select name="branch_category" id="edit_branch_category" class="form-select" required>
+                                <option value="">Select Category</option>
+                                <option value="registered_office">Registered Office/Head Office</option>
+                                <option value="branch_office">Regional/Branch Office</option>
+                                <option value="factory">Factory/Mfg. Facility</option>
+                                <option value="warehouse">Godown/Warehouse</option>
+                                <option value="project_site">Job Site/Project Site</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" name="is_primary" id="edit_is_primary">
+                                <label class="form-check-label" for="edit_is_primary">Primary Address</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_active" id="edit_is_active" checked>
+                                <label class="form-check-label" for="edit_is_active">Active</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="edit_address" class="form-label">Address</label>
+                            <textarea name="address" id="edit_address" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_state" class="form-label">State/UT</label>
+                            <select name="state" id="edit_state" class="form-select" required>
+                                <option value="">Select State</option>
+                                {% for state in states %}
+                                <option value="{{ state.id }}">{{ state.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_country" class="form-label">Country</label>
+                            <select name="country" id="edit_country" class="form-select" required>
+                                <option value="">Select Country</option>
+                                {% for country in countries %}
+                                <option value="{{ country.id }}">{{ country.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="edit_pincode" class="form-label">Pincode</label>
+                            <input type="text" name="pincode" id="edit_pincode" class="form-control" required>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label for="edit_location" class="form-label">Location</label>
+                            <input type="text" name="location" id="edit_location" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_gst_number" class="form-label">GST Number</label>
+                            <input type="text" name="gst_number" id="edit_gst_number" class="form-control" oninput="this.value = this.value.toUpperCase()">
+                            <div class="form-text">Format: 12ABCDE1234F1Z5</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_telephone" class="form-label">Telephone</label>
+                            <input type="text" name="telephone" id="edit_telephone" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="edit_email" class="form-label">Email</label>
+                            <input type="email" name="email" id="edit_email" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="edit_google_location" class="form-label">Google Location</label>
+                            <input type="text" name="google_location" id="edit_google_location" class="form-control" placeholder="Enter Google Maps location">
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="address_id" id="edit_address_id">
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-1"></i>Update Address
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editAddressForm = document.getElementById('editAddressForm');
+    
+    if (editAddressForm) {
+        editAddressForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const addressId = document.getElementById('edit_address_id').value;
+            
+            fetch(`/cms/addresses/${addressId}/update/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editAddressModal'));
+                    modal.hide();
+                    location.reload();
+                } else {
+                    alert('Error updating address. Please check the form.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating address. Please try again.');
+            });
+        });
+    }
+
+    // Populate form when editing an address
+    window.populateAddressForm = function(addressData) {
+        document.getElementById('edit_address_id').value = addressData.id;
+        document.getElementById('edit_branch_category').value = addressData.branch_category;
+        document.getElementById('edit_address').value = addressData.address;
+        document.getElementById('edit_state').value = addressData.state;
+        document.getElementById('edit_country').value = addressData.country;
+        document.getElementById('edit_pincode').value = addressData.pincode;
+        document.getElementById('edit_location').value = addressData.location;
+        document.getElementById('edit_gst_number').value = addressData.gst_number || '';
+        document.getElementById('edit_telephone').value = addressData.telephone || '';
+        document.getElementById('edit_email').value = addressData.email || '';
+        document.getElementById('edit_google_location').value = addressData.google_location || '';
+        document.getElementById('edit_is_primary').checked = addressData.is_primary;
+        document.getElementById('edit_is_active').checked = addressData.is_active;
+    };
+});
+</script>

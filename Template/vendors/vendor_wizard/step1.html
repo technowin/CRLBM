@@ -1,0 +1,155 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block step_content %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.country.id_for_label }}" class="form-label">Country *</label>
+                                {{ form.country }}
+                                {% if form.country.errors %}
+                                <div class="text-danger">{{ form.country.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.company_type.id_for_label }}" class="form-label">Type of Company *</label>
+                                {{ form.company_type }}
+                                {% if form.company_type.errors %}
+                                <div class="text-danger">{{ form.company_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.company_name.id_for_label }}" class="form-label">Company Name *</label>
+                                {{ form.company_name }}
+                                {% if form.company_name.errors %}
+                                <div class="text-danger">{{ form.company_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                   <label for="{{ form.display_name.id_for_label }}" class="form-label">Display Name (for cheques) *</label>
+                                    {{ form.display_name }}
+                                    <div class="form-text">Cheques will be printed on this name</div>
+                                    {% if form.display_name.errors %}
+                                    <div class="text-danger">{{ form.display_name.errors }}</div>
+                                    {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                     <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Name *</label>
+                                <input type="text" name="name1" id="nameid" class="form-control" placeholder="Name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Email *</label>
+                                <input type="email" name="email1" id="emailid" class="form-control" placeholder="Email" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Mobile *</label>
+                                <input type="number" name="mobile1" id="mobileid" class="form-control" placeholder="Mobile" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.work_description.id_for_label }}" class="form-label">Work Description</label>
+                            {{ form.work_description }}
+                            {% if form.work_description.errors %}
+                            <div class="text-danger">{{ form.work_description.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% comment %} <div class="mb-3 form-check">
+                        {{ form.create_ledger }}
+                        <label class="form-check-label" for="{{ form.create_ledger.id_for_label }}">
+                            Create ledger for accounting effects
+                        </label>
+                    </div> {% endcomment %}
+
+                    <!-- Vendor Types -->
+                    <div class="form-section">
+                        <h5>Vendor Type</h5>
+                        <div class="row">
+                            {% for choice in form.vendor_types.field.choices %}
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="vendor_types" 
+                                           value="{{ choice.0 }}" id="vendor_type_{{ choice.0 }}"
+                                           {% if choice.0 in form.vendor_types.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="vendor_type_{{ choice.0 }}">
+                                        {{ choice.1 }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <div>
+                            {% if current_step > 1 %}
+                            <a href="{% url 'vendor_wizard_step' step=current_step|add:'-1' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Previous
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% if role_id != 3 %}
+                                <button type="button" name="send_to_vendor" id="sendToVendorBtn" class="btn btn-primary">
+                                    Send to Vendor
+                                </button>
+                            {% endif %}
+
+                            <button type="submit" name="save_and_exit" class="btn btn-primary">
+                                Save & Exit
+                            </button>
+                            <button type="submit" name="save_and_continue" class="btn btn-primary">
+                                Next <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.getElementById("sendToVendorBtn").addEventListener("click", function() {
+    const name = document.getElementById("nameid").value.trim();
+    const email = document.getElementById("emailid").value.trim();
+    const mobile = document.getElementById("mobileid").value.trim();
+
+    if (!name || !email || !mobile) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Missing Information',
+            text: 'Please fill in Name, Email and Mobile fields before sending.',
+            confirmButtonText: 'OK'
+        });
+    } else {
+        Swal.fire({
+            icon: 'success',
+            title: 'Form Sent!',
+            text: 'The form has been successfully sent to the vendor for completion.',
+            confirmButtonText: 'OK'
+        });
+    }
+});
+</script>
+{% endblock %}

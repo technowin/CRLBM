@@ -1,0 +1,137 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block step_content %}
+
+                        {% comment %} {% url 'vendors:add_quality_system' vendor.id %} {% endcomment %}
+                        <form method="post" action="" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        {% comment %} quality_form {% endcomment %}
+                                        <label for="{{ form.system_name.id_for_label }}" class="form-label">Quality System *</label>
+                                        {{ form.system_name }}
+                                        <div class="form-text">e.g., ISO 9001, ISO 14001, etc.</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.certificate_number.id_for_label }}" class="form-label">Certificate Number *</label>
+                                        {{ form.certificate_number }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.valid_upto.id_for_label }}" class="form-label">Valid Upto *</label>
+                                        {{ form.valid_upto }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.certificate_file.id_for_label }}" class="form-label">Certificate File</label>
+                                {{ form.certificate_file }}
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Add Certification
+                                </button>
+                            </div>
+                        </form>
+                    
+
+                <!-- Existing Quality Systems -->
+                <div class="card mt-3">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Quality Certifications</h5>
+                        <span class="badge bg-primary">{{ quality_systems.count }} certifications</span>
+                    </div>
+                    <div class="card-body">
+                        {% if quality_systems %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Quality System</th>
+                                        <th>Certificate Number</th>
+                                        <th>Valid Upto</th>
+                                        <th>Status</th>
+                                        <th>Certificate</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for system in quality_systems %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ system.system_name }}</strong>
+                                        </td>
+                                        <td class="font-monospace">{{ system.certificate_number }}</td>
+                                        <td>
+                                            {{ system.valid_upto|date:"M d, Y" }}
+                                            {% if system.is_expired %}
+                                            <br><small class="text-danger">Expired</small>
+                                            {% elif system.is_expiring_soon %}
+                                            <br><small class="text-warning">Expiring soon</small>
+                                            {% else %}
+                                            <br><small class="text-success">Valid</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if system.is_expired %}
+                                            <span class="badge bg-danger">Expired</span>
+                                            {% elif system.is_expiring_soon %}
+                                            <span class="badge bg-warning">Expiring</span>
+                                            {% else %}
+                                            <span class="badge bg-success">Valid</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if system.certificate_file %}
+                                            <a href="{{ system.certificate_file.url }}" target="_blank" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-download"></i> View
+                                            </a>
+                                            {% else %}
+                                            <span class="text-muted">Not uploaded</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form method="post" action="{% url 'vendors:delete_quality_system' system.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this quality system?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-award display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No quality systems added yet.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+                    <div>
+                        <a href="{% url 'vendors:vendor_wizard_step' step=current_step|add:'-1' %}{% if vendor %}?vendor_id={{ vendor.id }}{% endif %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Previous
+                        </a>
+                    </div>
+                    <div>
+                        {% comment %} <button type="button" onclick="location.href='{% url 'vendors:vendor_wizard_step' step=current_step|add:'1' vendor_id=vendor.id %}'" class="btn btn-primary">
+                            Next <i class="bi bi-arrow-right"></i>
+                        </button> {% endcomment %}
+                        <button type="submit" name="save_and_continue" class="btn btn-primary">
+                                Next <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+           
+{% endblock %}

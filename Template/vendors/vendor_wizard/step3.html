@@ -1,0 +1,118 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block step_content %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Company Dates -->
+                    <div class="form-section">
+                        <h5 class="border-bottom pb-2">Company Dates</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.establishment_date.id_for_label }}" class="form-label">Date of Establishment</label>
+                                    {{ form.establishment_date }}
+                                    {% if form.establishment_date.errors %}
+                                    <div class="text-danger">{{ form.establishment_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.commencement_date.id_for_label }}" class="form-label">Date of Commencement</label>
+                                    {{ form.commencement_date }}
+                                    {% if form.commencement_date.errors %}
+                                    <div class="text-danger">{{ form.commencement_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Preferences -->
+                    <div class="form-section">
+                        <h5 class="border-bottom pb-2">Payment Preferences</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.payment_preference.id_for_label }}" class="form-label">Payment Preferred</label>
+                                    {{ form.payment_preference }}
+                                    {% if form.payment_preference.errors %}
+                                    <div class="text-danger">{{ form.payment_preference.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.vendor_group.id_for_label }}" class="form-label">Vendor Group</label>
+                                    {{ form.vendor_group }}
+                                    {% if form.vendor_group.errors %}
+                                    <div class="text-danger">{{ form.vendor_group.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="form-section">
+                        <h5 class="border-bottom pb-2">Additional Information</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Registered Vendor of Blue Chip Company?</label>
+                                <div class="mt-2">
+                                    {% for choice in form.registered_with_bluechip %}
+                                    <div class="form-check form-check-inline">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% if form.registered_with_bluechip.errors %}
+                                <div class="text-danger">{{ form.registered_with_bluechip.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Responsibility for Returns/Replacements?</label>
+                                <div class="mt-2">
+                                    {% for choice in form.responsibility_return_replace %}
+                                    <div class="form-check form-check-inline">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% if form.responsibility_return_replace.errors %}
+                                <div class="text-danger">{{ form.responsibility_return_replace.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <div>
+                            <a href="{% url 'vendors:vendor_wizard_step' step=current_step|add:'-1' %}{% if vendor %}?vendor_id={{ vendor.id }}{% endif %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Previous
+                            </a>
+                        </div>
+                        <div>
+                            <button type="submit" name="save_and_exit" class="btn btn-primary">
+                                Save & Exit
+                            </button>
+                            <button type="submit" name="save_and_continue" class="btn btn-primary">
+                                Next <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+           
+{% endblock %}

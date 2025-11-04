@@ -73,7 +73,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email or "Unnamed User"
-
+    
+    @property
+    def username(self):
+        """Return a fallback username (email or full_name)."""
+        return self.full_name or self.email
+    
     @property
     def profile_picture_url(self):
         """Return the profile picture URL or default image."""

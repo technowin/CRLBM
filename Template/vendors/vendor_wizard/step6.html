@@ -1,0 +1,146 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block step_content %}
+
+                        {% comment %} {% url 'vendors:add_financial_info' vendor.id %} {% endcomment %}
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        {% comment %} financial_form {% endcomment %}
+                                        <label for="{{ form.year.id_for_label }}" class="form-label">Financial Year *</label>
+                                        {{ form.year }}
+                                        <div class="form-text">Format: YYYY</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="{{ form.share_capital_reserves.id_for_label }}" class="form-label">Share Capital + Reserves (₹ Lakhs)</label>
+                                        {{ form.share_capital_reserves }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="{{ form.sales_turnover.id_for_label }}" class="form-label">Sales Turnover (₹ Lakhs)</label>
+                                        {{ form.sales_turnover }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="{{ form.cash_profit.id_for_label }}" class="form-label">Cash Profit (₹ Lakhs)</label>
+                                        {{ form.cash_profit }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Add Financial Year
+                                </button>
+                            </div>
+                        </form>
+                  
+                <!-- Existing Financial Information -->
+                <div class="card mt-3">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Financial History</h5>
+                        <span class="badge bg-primary">{{ financial_info.count }} years</span>
+                    </div>
+                    <div class="card-body">
+                        {% if financial_info %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Financial Year</th>
+                                        <th>Share Capital + Reserves (₹ Lakhs)</th>
+                                        <th>Sales Turnover (₹ Lakhs)</th>
+                                        <th>Cash Profit (₹ Lakhs)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for financial in financial_info %}
+                                    <tr>
+                                        <td class="fw-bold">{{ financial.year }}</td>
+                                        <td>₹ {{ financial.share_capital_reserves|default:"-"|floatformat:2 }}</td>
+                                        <td>₹ {{ financial.sales_turnover|default:"-"|floatformat:2 }}</td>
+                                        <td>₹ {{ financial.cash_profit|default:"-"|floatformat:2 }}</td>
+                                        <td>
+                                            <form method="post" action="{% url 'vendors:delete_financial_info' financial.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this financial information?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Financial Summary -->
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Average Turnover</h5>
+                                        <h4 class="text-primary">
+                                            ₹ {{ financial_info.0.sales_turnover|default:0|floatformat:2 }} L
+                                        </h4>
+                                        <small class="text-muted">Latest Year</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Capital Strength</h5>
+                                        <h4 class="text-success">
+                                            ₹ {{ financial_info.0.share_capital_reserves|default:0|floatformat:2 }} L
+                                        </h4>
+                                        <small class="text-muted">Latest Year</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Profitability</h5>
+                                        <h4 class="text-info">
+                                            ₹ {{ financial_info.0.cash_profit|default:0|floatformat:2 }} L
+                                        </h4>
+                                        <small class="text-muted">Latest Year</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-graph-up display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No financial information added yet.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+                    <div>
+                       <a href="{% url 'vendors:vendor_wizard_step' step=current_step|add:'-1' %}{% if vendor %}?vendor_id={{ vendor.id }}{% endif %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Previous
+                        </a>
+                    </div>
+                    <div>
+                        {% comment %} <button type="button" onclick="location.href='{% url 'vendors:vendor_wizard_step' step=current_step|add:'1' vendor_id=vendor.id %}'" class="btn btn-primary">
+                            Next <i class="bi bi-arrow-right"></i>
+                        </button> {% endcomment %}
+                        <button type="submit" name="save_and_continue" class="btn btn-primary">
+                                Next <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+           
+{% endblock %}

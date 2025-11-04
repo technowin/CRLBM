@@ -263,18 +263,23 @@ def percentage(value, arg):
 @register.filter
 def get_step_icon(step_number):
     icons = {
-        1: 'person',
-        2: 'mortarboard',
-        3: 'heart-pulse',
-        4: 'passport',
-        5: 'clipboard-check',
-        6: 'hospital',
-        7: 'globe',
-        8: 'folder',
-        9: 'shield-check',
-        10: 'credit-card'
+        1: 'person-vcard',             # Basic Information
+        2: 'card-text',                # PAN & MSME Details
+        3: 'calendar-event',           # Dates & Preferences
+        4: 'telephone',                # Contact Details
+        5: 'bank',                     # Banking Information
+        6: 'bar-chart-line',           # Financial Information
+        7: 'file-lock',                # Statutory & Compliance
+        8: 'people',                   # Sister Concerns
+        9: 'handshake',                # Customer References & Dealerships
+        10: 'person-lines-fill',       # Concern Person Details
+        11: 'people-fill',             # References & Relations
+        12: 'check2-square',           # Quality Systems
+        13: 'briefcase',               # Manpower Details
+        14: 'file-earmark-check',      # Documents & Finalize
     }
-    return icons.get(step_number, 'file-text')
+    return icons.get(step_number, 'file-text')  # default fallback icon
+
 
 @register.filter
 def get_application_icon(app_type):

@@ -1,0 +1,96 @@
+<!-- templates/cms/partials/address_modal.html -->
+<div class="modal fade" id="addAddressModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Customer Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'cms:add_customer_address' customer.pk %}" id="addressForm">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ address_form.branch_category.id_for_label }}" class="form-label">Branch Category</label>
+                            {{ address_form.branch_category }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch mt-4">
+                                {{ address_form.is_primary }}
+                                <label class="form-check-label" for="{{ address_form.is_primary.id_for_label }}">
+                                    Primary Address
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="{{ address_form.address.id_for_label }}" class="form-label">Address</label>
+                            {{ address_form.address }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ address_form.state.id_for_label }}" class="form-label">State/UT</label>
+                            {{ address_form.state }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ address_form.country.id_for_label }}" class="form-label">Country</label>
+                            {{ address_form.country }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ address_form.pincode.id_for_label }}" class="form-label">Pincode</label>
+                            {{ address_form.pincode }}
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label for="{{ address_form.location.id_for_label }}" class="form-label">Location</label>
+                            {{ address_form.location }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ address_form.gst_number.id_for_label }}" class="form-label">GST Number</label>
+                            {{ address_form.gst_number }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ address_form.telephone.id_for_label }}" class="form-label">Telephone</label>
+                            {{ address_form.telephone }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="{{ address_form.email.id_for_label }}" class="form-label">Email</label>
+                            {{ address_form.email }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="{{ address_form.google_location.id_for_label }}" class="form-label">Google Location</label>
+                            {{ address_form.google_location }}
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-1"></i>Add Address
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -162,53 +162,19 @@ types {
     application/javascript js mjs;
 }
 
-python manage.py makemigrations Account
-python manage.py makemigrations Masters
-python manage.py makemigrations MenuManager
-python manage.py makemigrations Reports
-python manage.py makemigrations Workflow
-python manage.py makemigrations BOM
-python manage.py makemigrations MaterialPlan
-python manage.py makemigrations BookMetadata
-
-python manage.py migrate Account
-python manage.py migrate Masters
-python manage.py migrate MenuManager
-python manage.py migrate Reports
-python manage.py migrate Workflow
-python manage.py migrate BOM
-python manage.py migrate MaterialPlan
-python manage.py migrate BookMetadata
-python manage.py migrate BookMetadata
 
 python manage.py makemigrations
 python manage.py migrate --fake Account zero
 python manage.py migrate Account
 
 
+python manage.py startapp CMS
+python manage.py makemigrations CMS
+python manage.py migrate CMS
 
-python manage.py makemigrations Checklist
-python manage.py migrate Checklist
-
-python manage.py migrate Account
-
-python manage.py startapp MaterialPlan
-
-python manage.py startapp Inventory
-python manage.py makemigrations Inventory
-python manage.py migrate Inventory
-
-python manage.py startapp LMS
-python manage.py makemigrations LMS
-python manage.py migrate LMS
-
-python manage.py startapp SalesPurchase
-python manage.py makemigrations SalesPurchase
-python manage.py migrate SalesPurchase
-
-python manage.py startapp MMC
-python manage.py makemigrations MMC
-python manage.py migrate MMC
+python manage.py startapp vendors
+python manage.py makemigrations vendors
+python manage.py migrate vendors
 
 curl -s http://15.207.169.98/ocr_files
 

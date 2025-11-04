@@ -1,0 +1,163 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block step_content %}
+
+                        {% comment %} {% url 'vendors:add_sister_concern' vendor.id %} {% endcomment %}
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Name *</label>
+                                        <input type="text" name="company_name" class="form-control" placeholder="Company name" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Address *</label>
+                                        <textarea name="address" class="form-control" rows="3" placeholder="Full address" required></textarea>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Pincode *</label>
+                                                <input type="text" name="pincode" class="form-control" placeholder="6-digit pincode" pattern="[1-9][0-9]{5}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Location</label>
+                                                <input type="text" name="location" class="form-control" placeholder="City/Location">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Contact Person</label>
+                                        <input type="text" name="contact_person" class="form-control" placeholder="Contact person name">
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Telephone *</label>
+                                                <input type="text" name="telephone" class="form-control" placeholder="Telephone number" pattern="[0-9]{10,12}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Fax</label>
+                                                <input type="text" name="fax" class="form-control" placeholder="Fax number">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" name="email" class="form-control" placeholder="email@example.com">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Website</label>
+                                        <input type="url" name="website" class="form-control" placeholder="https://example.com">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Add Sister Concern
+                                </button>
+                            </div>
+                        </form>
+
+                <!-- Existing Sister Concerns -->
+                <div class="card mt-3">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Sister Concerns / Associated Companies</h5>
+                        <span class="badge bg-primary">{{ vendor.sister_concerns.count }} companies</span>
+                    </div>
+                    <div class="card-body">
+                        {% if vendor.sister_concerns.all %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Company Name</th>
+                                        <th>Address</th>
+                                        <th>Contact</th>
+                                        <th>Telephone</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for concern in vendor.sister_concerns.all %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ concern.company_name }}</strong>
+                                            {% if concern.website %}
+                                            <br><small><a href="{{ concern.website }}" target="_blank">{{ concern.website }}</a></small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>{{ concern.address|truncatewords:8 }}</small>
+                                            <br><small class="text-muted">{{ concern.location }} - {{ concern.pincode }}</small>
+                                        </td>
+                                        <td>
+                                            {% if concern.contact_person %}
+                                            {{ concern.contact_person }}
+                                            {% if concern.email %}
+                                            <br><small class="text-muted">{{ concern.email }}</small>
+                                            {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ concern.telephone }}
+                                            {% if concern.fax %}
+                                            <br><small class="text-muted">Fax: {{ concern.fax }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form method="post" action="{% url 'vendors:delete_sister_concern' concern.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this sister concern?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-building display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No sister concerns added yet.</p>
+                            <p class="text-muted small">If you have sister concerns or associated companies, please add them above.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+                    <div>
+                        <a href="{% url 'vendors:vendor_wizard_step' step=current_step|add:'-1' %}{% if vendor %}?vendor_id={{ vendor.id }}{% endif %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Previous
+                        </a>
+                    </div>
+                    <div>
+                        {% comment %} <button type="button" onclick="location.href='{% url 'vendors:vendor_wizard_step' step=current_step|add:'1' vendor_id=vendor.id %}'" class="btn btn-primary">
+                            Next <i class="bi bi-arrow-right"></i>
+                        </button> {% endcomment %}
+                        <button type="submit" name="save_and_continue" class="btn btn-primary">
+                                Next <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            
+{% endblock %}

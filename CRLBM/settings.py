@@ -23,12 +23,12 @@ from cryptography.fernet import Fernet
 # fernet = Fernet(SECRET_KEY)
 # DECRYPTED_PASSWORD = fernet.decrypt(ENCRYPTED_PASSWORD.encode()).decode()
 
-# ALLOWED_HOSTS = ['13.126.143.90']
+ALLOWED_HOSTS = ['13.126.143.90']
 # ALLOWED_HOSTS = ['127.0.0.1']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = False
-DEBUG = True   
+DEBUG = False
+# DEBUG = True   
 
 # SITE_URL = "http://localhost:8000"  # for local development
 SITE_URL = "http://13.126.143.90"  # for production development
@@ -44,8 +44,8 @@ DATABASES = {
         'USER': 'root',      # Replace with your database user
         'PASSWORD': 'Techno-pml_MH-047319',  # Replace with your database password
         # 'PASSWORD': 'Shrims8@2420',  # Replace with your database password
-        'HOST': '13.126.143.90',       # IP FOR TEST
-        # 'HOST': '127.0.0.1',       # IP FOR LOCAL VM
+        # 'HOST': '13.126.143.90',       # IP FOR TEST
+        'HOST': '127.0.0.1',       # IP FOR LOCAL VM
         'PORT': '3306',            
         "OPTIONS": {
              "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
@@ -65,8 +65,8 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'D:/Python Project/Documents/')
-# MEDIA_ROOT = os.path.join(BASE_DIR, '/home/ubuntu/Documents/')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'D:/Python Project/Documents/')
+MEDIA_ROOT = os.path.join(BASE_DIR, '/home/ubuntu/Documents/')
 MEDIA_URL = '/media/'
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
@@ -155,7 +155,9 @@ LOCAL_APPS = [
     'Account',
     'MenuManager',
     'Masters',
-    'Reports'
+    'Reports',
+    'CMS',
+    'vendors.apps.VendorsConfig',
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -207,8 +209,8 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'D:/Python Project/TDMS logs', 'django.log'),  
-            # 'filename': os.path.join(BASE_DIR, '/home/ubuntu/TDMS logs', 'django.log'),  
+            # 'filename': os.path.join(BASE_DIR, 'D:/Python Project/CRLBM Logs', 'django.log'),  
+            'filename': os.path.join(BASE_DIR, '/home/ubuntu/CRLBM Logs', 'django.log'),  
         },
     },
     'loggers': {

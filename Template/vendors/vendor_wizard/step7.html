@@ -1,0 +1,102 @@
+{% extends 'vendors/vendor_wizard/vendor_wizard_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block step_content %}
+                {% comment %} {% url 'vendors:save_statutory_details' vendor.id %} {% endcomment %}
+                <form method="post" action="">
+                    {% csrf_token %}
+                    
+                    <div class="form-section">
+                        <h5 class="border-bottom pb-2">Registration Particulars</h5>
+                        
+                        <div class="mb-3">
+                            {% comment %} statutory_form {% endcomment %}
+                            <label for="{{ form.service_tax_reg_no.id_for_label }}" class="form-label">Service Tax Registration No</label>
+                            {{ form.service_tax_reg_no }}
+                            {% if form.service_tax_reg_no.errors %}
+                            <div class="text-danger">{{ form.service_tax_reg_no.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="{{ form.vat_reg_no.id_for_label }}" class="form-label">Sales Tax/VAT Reg. No</label>
+                                    {{ form.vat_reg_no }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.vat_reg_date.id_for_label }}" class="form-label">Registration Date</label>
+                                    {{ form.vat_reg_date }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.pf_reg_no.id_for_label }}" class="form-label">PF Registration No</label>
+                            {{ form.pf_reg_no }}
+                            <div class="form-text">Applicable if labour supplier</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                {{ form.cpwd_registered }}
+                                <label class="form-check-label" for="{{ form.cpwd_registered.id_for_label }}">
+                                    CPWD/Government Organization
+                                </label>
+                            </div>
+                        </div>
+
+                        {% if form.cpwd_registered.value %}
+                        <div class="mb-3">
+                            <label for="{{ form.cpwd_details.id_for_label }}" class="form-label">CPWD/Government Details</label>
+                            {{ form.cpwd_details }}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.gst_number.id_for_label }}" class="form-label">GST Number</label>
+                            {{ form.gst_number }}
+                            <div class="form-text">Format: 22ABCDE1234F1Z5</div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <div>
+                            <a href="{% url 'vendors:vendor_wizard_step' step=current_step|add:'-1' %}{% if vendor %}?vendor_id={{ vendor.id }}{% endif %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Previous
+                            </a>
+                        </div>
+                        <div>
+                            <button type="submit" name="save_and_exit" class="btn btn-primary">
+                                Save & Exit
+                            </button>
+                            <button type="submit" name="save_and_continue" class="btn btn-primary">
+                                Save & Continue
+                            </button>
+                        </div>
+                    </div>
+                </form>
+           
+
+<script>
+// Show/hide CPWD details based on checkbox
+document.getElementById('{{ form.cpwd_registered.id_for_label }}').addEventListener('change', function() {
+    const cpwdDetails = document.getElementById('{{ form.cpwd_details.id_for_label }}');
+    if (cpwdDetails) {
+        cpwdDetails.closest('.mb-3').style.display = this.checked ? 'block' : 'none';
+    }
+});
+
+// Initialize visibility on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const cpwdCheckbox = document.getElementById('{{ form.cpwd_registered.id_for_label }}');
+    const cpwdDetails = document.getElementById('{{ form.cpwd_details.id_for_label }}');
+    if (cpwdDetails && cpwdCheckbox) {
+        cpwdDetails.closest('.mb-3').style.display = cpwdCheckbox.checked ? 'block' : 'none';
+    }
+});
+</script>
+{% endblock %}
