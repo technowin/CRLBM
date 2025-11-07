@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Steel Carriers - CRM{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --info-color: #17a2b8;
+        }
+
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #1a1d23;
+            --bs-body-color: #e9ecef;
+            --bs-border-color: #495057;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 0%, #34495e 100%);
+            min-height: 100vh;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        .sidebar .nav-link {
+            color: #ecf0f1;
+            padding: 0.75rem 1rem;
+            margin: 0.1rem 0;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link.active {
+            background-color: var(--secondary-color);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stat-card {
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stat-card.danger {
+            border-left-color: var(--accent-color);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .badge-priority-high {
+            background-color: var(--accent-color);
+        }
+
+        .badge-priority-urgent {
+            background-color: #c0392b;
+        }
+
+        .badge-priority-medium {
+            background-color: var(--warning-color);
+        }
+
+        .badge-priority-low {
+            background-color: var(--info-color);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        .theme-switch {
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .theme-switch:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .action-buttons .btn {
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+            }
+            
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .enquiry-type-icon {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+          .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+        }
+
+        [data-bs-theme="dark"] .navbar-light {
+            background-color: var(--bs-body-bg) !important;
+            border-color: var(--bs-border-color) !important;
+        }
+
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0.75rem 0;
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--bs-secondary);
+        }
+
+        .action-buttons .btn {
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .table-actions {
+            white-space: nowrap;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .formset-form {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f8f9fa;
+        }
+
+        [data-bs-theme="dark"] .formset-form {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
+
+        .empty-form {
+            display: none;
+        }
+
+        .card-header {
+            font-weight: 600;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .card {
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+     <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse no-print">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">
+                            <i class="fas fa-cogs me-2"></i>
+                            Steel Carriers
+                        </h4>
+                        <p class="text-light small">CRM System</p>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'crm:dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'enquiry' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'crm:enquiry_list' %}">
+                                <i class="fas fa-inbox me-2"></i>
+                                Enquiries
+                                {% if new_enquiries_count %}
+                                <span class="badge bg-danger float-end">{{ new_enquiries_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'quotation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'crm:quotation_list' %}">
+                                <i class="fas fa-file-invoice-dollar me-2"></i>
+                                Quotations
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'sales_order' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'crm:sales_order_list' %}">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Sales Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cms:customer_list' %}">
+                                <i class="fas fa-users me-2"></i>
+                                Customers
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <hr class="text-light">
+                            <small class="text-light-50 px-3">REPORTS</small>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-file-pdf me-2"></i>
+                                Reports
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Header -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom mb-4 no-print">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        
+                        <div class="d-flex align-items-center">
+                            <h5 class="mb-0 text-primary">
+                                {% block page_title %}CRM Dashboard{% endblock %}
+                            </h5>
+                        </div>
+
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <span class="theme-switch" id="themeToggle">
+                                    <i class="fas fa-moon"></i>
+                                </span>
+                            </div>
+                            <div class="dropdown">
+                                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown">
+                                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=3498db&color=fff" alt="User" class="rounded-circle me-2" width="32" height="32">
+                                    <span class="d-none d-md-inline">{{ user.get_full_name|default:user.username }}</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Breadcrumb -->
+                {% block breadcrumb %}
+                <nav aria-label="breadcrumb" class="no-print">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'crm:dashboard' %}">Dashboard</a></li>
+                        {% block breadcrumb_items %}
+                        {% endblock %}
+                    </ol>
+                </nav>
+                {% endblock %}
+
+                <!-- Messages -->
+                {% if messages %}
+                <div class="container-fluid mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas 
+                        {% if message.tags == 'success' %}fa-check-circle
+                        {% elif message.tags == 'error' %}fa-exclamation-circle
+                        {% elif message.tags == 'warning' %}fa-exclamation-triangle
+                        {% else %}fa-info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Content -->
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        // Theme switching
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const html = document.documentElement;
+            const theme = html.getAttribute('data-bs-theme');
+            const icon = this.querySelector('i');
+            
+            if (theme === 'dark') {
+                html.setAttribute('data-bs-theme', 'light');
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-bs-theme', 'dark');
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // Initialize theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        document.getElementById('themeToggle').querySelector('i').className = 
+            savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').alert('close');
+        }, 5000);
+
+        // Dynamic form handling
+        $(document).ready(function() {
+            // Formset management
+            $('.add-form').click(function() {
+                const formset = $(this).closest('.formset');
+                const totalForms = $('#id_' + formset.data('prefix') + '-TOTAL_FORMS');
+                const formCount = parseInt(totalForms.val());
+                const emptyForm = formset.find('.empty-form').clone(true);
+                
+                emptyForm.html(emptyForm.html().replace(/__prefix__/g, formCount));
+                emptyForm.removeClass('empty-form d-none');
+                emptyForm.addClass('formset-form');
+                
+                // Clear input values in the new form
+                emptyForm.find('input, textarea, select').val('');
+                emptyForm.find('input[type="checkbox"]').prop('checked', false);
+                
+                formset.append(emptyForm);
+                totalForms.val(formCount + 1);
+                
+                // Reinitialize any dynamic fields
+                initializeDynamicFields();
+            });
+
+            $(document).on('click', '.remove-form', function() {
+                const form = $(this).closest('.formset-form');
+                const deleteField = form.find('input[id$="-DELETE"]');
+                
+                if (deleteField.length) {
+                    // Mark for deletion
+                    deleteField.val('on');
+                    form.hide();
+                } else {
+                    form.remove();
+                }
+                updateFormIndexes();
+            });
+
+            function updateFormIndexes() {
+                $('.formset').each(function() {
+                    const prefix = $(this).data('prefix');
+                    const forms = $(this).find('.formset-form:visible');
+                    $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+                    
+                    forms.each(function(index) {
+                        $(this).find(':input').each(function() {
+                            const name = $(this).attr('name').replace(/-\d+-/, '-' + index + '-');
+                            const id = 'id_' + name;
+                            $(this).attr({'name': name, 'id': id});
+                        });
+                        
+                        $(this).find('label').each(function() {
+                            const newFor = $(this).attr('for').replace(/-\d+-/, '-' + index + '-');
+                            $(this).attr('for', newFor);
+                        });
+                    });
+                });
+            }
+
+            // Initialize dynamic fields
+            function initializeDynamicFields() {
+                // Show/hide tender fields based on enquiry type
+                function toggleTenderFields() {
+                    const enquiryType = $('#id_enquiry_type').val();
+                    const tenderFields = $('.tender-field');
+                    const referralFields = $('.referral-field');
+                    
+                    if (enquiryType === 'tender') {
+                        tenderFields.show();
+                        referralFields.hide();
+                    } else if (enquiryType === 'referral') {
+                        tenderFields.hide();
+                        referralFields.show();
+                    } else {
+                        tenderFields.hide();
+                        referralFields.hide();
+                    }
+                }
+
+                $('#id_enquiry_type').change(toggleTenderFields);
+                toggleTenderFields(); // Initial call
+
+                // Dynamic contact person loading
+                $('#id_customer').change(function() {
+                    const customerId = $(this).val();
+                    if (customerId) {
+                        $.ajax({
+                            url: '{% url "crm:get_contact_persons" %}',
+                            data: {
+                                'customer_id': customerId
+                            },
+                            dataType: 'json',
+                            success: function(data) {
+                                $('#id_contact_person').empty();
+                                $('#id_contact_person').append('<option value="">Select Contact Person</option>');
+                                $.each(data, function(index, person) {
+                                    $('#id_contact_person').append(
+                                        $('<option></option>').attr('value', person.id).text(
+                                            person.concern_person + ' - ' + (person.designation || 'No designation')
+                                        )
+                                    );
+                                });
+                            },
+                            error: function() {
+                                $('#id_contact_person').empty();
+                                $('#id_contact_person').append('<option value="">Select Contact Person</option>');
+                            }
+                        });
+                    } else {
+                        $('#id_contact_person').empty();
+                        $('#id_contact_person').append('<option value="">Select Contact Person</option>');
+                    }
+                });
+            }
+
+            // Initial initialization
+            initializeDynamicFields();
+        });
+
+        // Print functionality
+        function printDocument() {
+            window.print();
+        }
+    </script>
+
+    {% block extra_scripts %}
+    {% endblock %}
+</body>
+</html>

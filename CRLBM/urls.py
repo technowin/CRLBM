@@ -24,8 +24,6 @@ from Account.views import *
 from Masters.views import *
 from Reports.views import *
 from MenuManager.views import *
-
-# from ChatBot.views import *
 urlpatterns = [
     
 
@@ -33,7 +31,7 @@ urlpatterns = [
     # User management
     # path("users/", include("bootstrap.users.urls", namespace="users")),
     path("apps/", include("bootstrap.apps.urls", namespace="apps")),
-    path("apps/crm/", include("bootstrap.crm.urls", namespace="crm")),
+    path("apps/crm/", include("bootstrap.crm.urls", namespace="bootstrap_crm")),
     path("apps/ecommerce/", include("bootstrap.ecommerce.urls", namespace="ecommerce")),
     path("pages/", include("bootstrap.pages.urls", namespace="pages")),
     path("ui/", include("bootstrap.ui.urls", namespace="ui")),
@@ -91,6 +89,9 @@ urlpatterns = [
 
     # VMS - Vendor Management System
     path('vendors/', include('vendors.urls')),
+
+    # Customer Relationship Management (CRM)
+    path('crm/', include('crm.urls', namespace='crm')),
 
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),

@@ -1,0 +1,449 @@
+{% extends "bootstrap/vertical_base.html" %}
+
+{% load humanize %}
+
+{% load custom_filters %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/mtp.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/crm.css' %}" rel="stylesheet" type="text/css" >
+
+{% endblock %}
+
+{% block title %}{{ enquiry.enquiry_number }} - Steel Carriers CRM{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+    <div class="row">
+        <div class="col">
+            <h4><i class="bi bi-file-earmark-text"></i> Enquiry: {{ enquiry.enquiry_number }}</h4>
+        </div>
+        <div class="col-auto mt-2">
+            <div class="btn-group mb-2">
+               
+            </div>
+        </div>
+    </div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Enquiry Header -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ enquiry.subject }}</h5>
+                        <div>
+                            <span class="badge badge-priority-{{ enquiry.priority }} me-2">
+                                {{ enquiry.get_priority_display }}
+                            </span>
+                            <span class="badge bg-{% if enquiry.status == 'new' %}success{% elif enquiry.status == 'in_progress' %}info{% elif enquiry.status == 'quoted' %}primary{% elif enquiry.status == 'converted' %}warning{% else %}secondary{% endif %}">
+                                {{ enquiry.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th width="40%">Enquiry Number:</th>
+                                    <td><strong>{{ enquiry.enquiry_number }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Customer:</th>
+                                    <td>
+                                        <a href="{% url 'cms:customer_detail' enquiry.customer.pk %}" class="text-decoration-none">
+                                            {{ enquiry.customer.name }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Contact Person:</th>
+                                    <td>{{ enquiry.contact_person.concern_person|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email:</th>
+                                    <td>{{ enquiry.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone:</th>
+                                    <td>{{ enquiry.phone }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th width="40%">Enquiry Type:</th>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            <i class="fas 
+                                            {% if enquiry.enquiry_type == 'mail' %}fa-envelope
+                                            {% elif enquiry.enquiry_type == 'call' %}fa-phone
+                                            {% elif enquiry.enquiry_type == 'whatsapp' %}fa-whatsapp
+                                            {% elif enquiry.enquiry_type == 'tender' %}fa-gavel
+                                            {% elif enquiry.enquiry_type == 'referral' %}fa-user-friends
+                                            {% else %}fa-question{% endif %} me-1"></i>
+                                            {{ enquiry.get_enquiry_type_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Enquiry Date:</th>
+                                    <td>{{ enquiry.enquiry_date }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Required By:</th>
+                                    <td>{{ enquiry.required_by_date }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Days Open:</th>
+                                    <td>
+                                        <span class="badge bg-{% if enquiry.days_open > 30 %}danger{% elif enquiry.days_open > 14 %}warning{% else %}info{% endif %}">
+                                            {{ enquiry.days_open }} days
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Currency:</th>
+                                    <td>{{ enquiry.get_currency_display }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if enquiry.tender_name %}
+                    <!-- Tender Information -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-warning border-bottom pb-2">
+                                <i class="fas fa-gavel me-2"></i>Tender Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Tender Name:</strong> {{ enquiry.tender_name }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Tender ID:</strong> {{ enquiry.tender_id }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Tender Date:</strong> {{ enquiry.tender_date }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Authority:</strong> {{ enquiry.tender_authority }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Bid Submission:</strong> {{ enquiry.bid_submission_date }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if enquiry.referral_person_name %}
+                    <!-- Referral Information -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-info border-bottom pb-2">
+                                <i class="fas fa-user-friends me-2"></i>Referral Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Referral Person:</strong> {{ enquiry.referral_person_name }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Mobile:</strong> {{ enquiry.referral_mobile }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Company:</strong> {{ enquiry.referral_company }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Description -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-file-alt me-2"></i>Description
+                            </h6>
+                            <p>{{ enquiry.description|linebreaks }}</p>
+                        </div>
+                    </div>
+
+                    {% if enquiry.project_requirements %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-tasks me-2"></i>Project Requirements
+                            </h6>
+                            <p>{{ enquiry.project_requirements|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if enquiry.notes %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-sticky-note me-2"></i>Additional Notes
+                            </h6>
+                            <p>{{ enquiry.notes|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Service Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Service Items ({{ items.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if items %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Service Category</th>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Unit</th>
+                                    <th>Target Price</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">{{ item.get_service_category_display }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ item.service_description }}</strong>
+                                        {% if item.detailed_specifications %}
+                                        <br><small class="text-muted">{{ item.detailed_specifications|truncatewords:10 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.get_unit_display }}</td>
+                                    <td>
+                                        {% if item.target_price %}
+                                        ₹{{ item.target_price|floatformat:2|intcomma }}
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td>
+                                        {% if item.start_date and item.end_date %}
+                                        {{ item.start_date }} to {{ item.end_date }}
+                                        {% else %}-{% endif %}
+                                    </td>
+                                </tr>
+                                {% if item.crane_capacity or item.boom_length %}
+                                <tr>
+                                    <td colspan="6" class="bg-light">
+                                        <small>
+                                            <strong>Specifications:</strong>
+                                            {% if item.crane_capacity %}Capacity: {{ item.crane_capacity }}{% endif %}
+                                            {% if item.boom_length %} | Boom: {{ item.boom_length }}{% endif %}
+                                            {% if item.working_height %} | Height: {{ item.working_height }}{% endif %}
+                                            {% if item.radius %} | Radius: {{ item.radius }}{% endif %}
+                                        </small>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No service items added.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Actions Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'crm:enquiry_update' enquiry.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Edit Enquiry
+                        </a>
+                        
+                        {% if enquiry.can_create_quotation %}
+                        <a href="{% url 'crm:quotation_create' %}?enquiry={{ enquiry.pk }}" class="btn btn-success">
+                            <i class="fas fa-file-invoice me-2"></i>Create Quotation
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{% url 'crm:enquiry_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-building me-2"></i>Customer Information</h6>
+                </div>
+                <div class="card-body">
+                    <h6>{{ enquiry.customer.name }}</h6>
+                    <p class="mb-1">
+                        <i class="fas fa-id-card me-2 text-muted"></i>
+                        {{ enquiry.customer.customer_id }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-phone me-2 text-muted"></i>
+                        {{ enquiry.customer.billing_contact_phone|default:"-" }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-envelope me-2 text-muted"></i>
+                        {{ enquiry.customer.billing_contact_email|default:"-" }}
+                    </p>
+                    <a href="{% url 'cms:customer_detail' enquiry.customer.pk %}" class="btn btn-sm btn-primary mt-2">
+                        View Customer Details
+                    </a>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Information</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1">
+                        <strong>Created:</strong> {{ enquiry.created_date|date:"M d, Y H:i" }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>By:</strong> {{ enquiry.created_by.get_full_name|default:enquiry.created_by.username }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Last Modified:</strong> {{ enquiry.last_modified|date:"M d, Y H:i" }}
+                    </p>
+                    {% if enquiry.modified_by %}
+                    <p class="mb-0">
+                        <strong>Modified By:</strong> {{ enquiry.modified_by.get_full_name|default:enquiry.modified_by.username }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Related Quotations -->
+            {% if quotations %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Related Quotations</h6>
+                </div>
+                <div class="card-body">
+                    {% for quotation in quotations %}
+                    <div class="border-start border-3 border-primary ps-3 mb-3">
+                        <h6 class="mb-1">
+                            <a href="{% url 'crm:quotation_detail' quotation.pk %}" class="text-decoration-none">
+                                {{ quotation.quotation_number }}
+                            </a>
+                        </h6>
+                        <p class="mb-1 small text-muted">Date: {{ quotation.quotation_date }}</p>
+                        <span class="badge bg-{% if quotation.status == 'accepted' %}success{% elif quotation.status == 'sent' %}info{% elif quotation.status == 'draft' %}secondary{% else %}warning{% endif %}">
+                            {{ quotation.get_status_display }}
+                        </span>
+                        <span class="badge bg-primary">
+                            ₹{{ quotation.total_amount|floatformat:2|intcomma }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'js/crm.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+{% if messages %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      {% for message in messages %}
+        Swal.fire({
+          title: "{{ message.tags|title }}",
+          text: "{{ message|escapejs }}",
+          icon: "{{ message.tags }}", // valid: success, error, warning, info, question
+          confirmButtonText: "OK",
+          background: theme === 'dark' ? '#343a40' : '#ffffff',
+          color: theme === 'dark' ? '#f8f9fa' : '#212529',
+          confirmButtonColor: theme === 'dark' ? '#0d6efd' : '#0d6efd',
+          customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+          }
+        });
+      {% endfor %}
+    });
+  </script>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+<script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+<script src="{% static 'js/vendor/select2.min.js' %}"></script>
+{% endblock %}

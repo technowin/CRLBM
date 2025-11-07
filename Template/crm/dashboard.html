@@ -1,0 +1,315 @@
+<!-- templates/cms/dashboard.html -->
+{% extends "bootstrap/vertical_base.html" %}
+
+{% load humanize %}
+
+{% load custom_filters %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/mtp.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/crm.css' %}" rel="stylesheet" type="text/css" >
+
+{% endblock %}
+
+{% block title %}CRM Dashboard{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+    <div class="row">
+        <div class="col">
+            <h4><i class="bi bi-file-earmark-text"></i> CRM Dashboard</h4>
+        </div>
+        <div class="col-auto mt-2">
+            <div class="btn-group mb-2">
+               
+            </div>
+        </div>
+    </div>
+<div class="container-fluid">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title text-muted mb-2">Total Enquiries</h6>
+                            <h3 class="text-primary">{{ total_enquiries|intcomma }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-inbox fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-success">{{ new_enquiries }} New</span>
+                        <span class="badge bg-warning">{{ high_priority }} High Priority</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card warning h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title text-muted mb-2">Active Quotations</h6>
+                            <h3 class="text-warning">{{ total_quotations|intcomma }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-file-invoice-dollar fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-info">{{ sent_quotations }} Sent</span>
+                        <span class="badge bg-success">{{ accepted_quotations }} Accepted</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card success h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title text-muted mb-2">Sales Orders</h6>
+                            <h3 class="text-success">{{ total_orders|intcomma }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-shopping-cart fa-2x text-success"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-primary">{{ in_progress_orders }} In Progress</span>
+                        <span class="badge bg-success">{{ completed_orders }} Completed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card danger h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title text-muted mb-2">Overdue Orders</h6>
+                            <h3 class="text-danger">{{ overdue_orders|intcomma }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-danger">Requires Immediate Attention</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'crm:enquiry_create' %}" class="btn btn-primary w-100">
+                                <i class="fas fa-plus me-2"></i>New Enquiry
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'crm:quotation_create' %}" class="btn btn-success w-100">
+                                <i class="fas fa-file-invoice me-2"></i>Create Quotation
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'crm:sales_order_create' %}" class="btn btn-warning w-100">
+                                <i class="fas fa-shopping-cart me-2"></i>New Sales Order
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'cms:customer_create' %}" class="btn btn-info w-100">
+                                <i class="fas fa-user-plus me-2"></i>Add Customer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <!-- Recent Enquiries -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-inbox me-2"></i>Recent Enquiries</h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_enquiries %}
+                    <div class="list-group list-group-flush">
+                        {% for enquiry in recent_enquiries %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'crm:enquiry_detail' enquiry.pk %}" class="text-decoration-none">
+                                            {{ enquiry.enquiry_number }}
+                                        </a>
+                                    </h6>
+                                    <p class="mb-1 text-muted small">{{ enquiry.customer.name }}</p>
+                                    <span class="badge badge-priority-{{ enquiry.priority }} status-badge">
+                                        {{ enquiry.get_priority_display }}
+                                    </span>
+                                    <span class="badge bg-secondary status-badge">
+                                        {{ enquiry.get_enquiry_type_display }}
+                                    </span>
+                                </div>
+                                <small class="text-muted">{{ enquiry.enquiry_date }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No recent enquiries</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'crm:enquiry_list' %}" class="btn btn-sm btn-primary">View All Enquiries</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Quotations -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Recent Quotations</h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_quotations %}
+                    <div class="list-group list-group-flush">
+                        {% for quotation in recent_quotations %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'crm:quotation_detail' quotation.pk %}" class="text-decoration-none">
+                                            {{ quotation.quotation_number }}
+                                        </a>
+                                    </h6>
+                                    <p class="mb-1 text-muted small">{{ quotation.customer.name }}</p>
+                                    <span class="badge bg-{% if quotation.status == 'accepted' %}success{% elif quotation.status == 'sent' %}info{% elif quotation.status == 'draft' %}secondary{% else %}warning{% endif %} status-badge">
+                                        {{ quotation.get_status_display }}
+                                    </span>
+                                    <span class="badge bg-primary status-badge">
+                                        ₹{{ quotation.total_amount|floatformat:2|intcomma }}
+                                    </span>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">{{ quotation.quotation_date }}</small>
+                                    {% if quotation.is_expired %}
+                                    <span class="badge bg-danger status-badge">Expired</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No recent quotations</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'crm:quotation_list' %}" class="btn btn-sm btn-primary">View All Quotations</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'js/crm.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+{% if messages %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      {% for message in messages %}
+        Swal.fire({
+          title: "{{ message.tags|title }}",
+          text: "{{ message|escapejs }}",
+          icon: "{{ message.tags }}", // valid: success, error, warning, info, question
+          confirmButtonText: "OK",
+          background: theme === 'dark' ? '#343a40' : '#ffffff',
+          color: theme === 'dark' ? '#f8f9fa' : '#212529',
+          confirmButtonColor: theme === 'dark' ? '#0d6efd' : '#0d6efd',
+          customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+          }
+        });
+      {% endfor %}
+    });
+  </script>
+{% endif %}
+
+
+{% endblock %}
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+<script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+<script src="{% static 'js/vendor/select2.min.js' %}"></script>
+{% endblock %}

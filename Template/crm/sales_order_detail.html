@@ -1,0 +1,564 @@
+{% extends "bootstrap/vertical_base.html" %}
+
+{% load humanize %}
+
+{% load custom_filters %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/mtp.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/crm.css' %}" rel="stylesheet" type="text/css" >
+
+{% endblock %}
+
+{% block title %}{{ sales_order.order_number }} - Steel Carriers CRM{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+    <div class="row">
+        <div class="col">
+            <h4><i class="bi bi-file-earmark-text"></i> Sales Order: {{ sales_order.order_number }} </h4>
+        </div>
+        <div class="col-auto mt-2">
+            <div class="btn-group mb-2">
+               
+            </div>
+        </div>
+    </div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Sales Order Header -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Sales Order {{ sales_order.order_number }}</h5>
+                        <div>
+                            <span class="badge bg-{% if sales_order.status == 'completed' %}success{% elif sales_order.status == 'in_progress' %}info{% elif sales_order.status == 'draft' %}secondary{% elif sales_order.status == 'cancelled' %}danger{% else %}warning{% endif %} me-2">
+                                {{ sales_order.get_status_display }}
+                            </span>
+                            {% if sales_order.is_overdue %}
+                            <span class="badge bg-danger">Overdue</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th width="40%">Order Number:</th>
+                                    <td><strong>{{ sales_order.order_number }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Customer:</th>
+                                    <td>
+                                        <a href="{% url 'cms:customer_detail' sales_order.customer.pk %}" class="text-decoration-none">
+                                            {{ sales_order.customer.name }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Contact Person:</th>
+                                    <td>{{ sales_order.contact_person.concern_person|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Customer PO:</th>
+                                    <td>
+                                        {{ sales_order.customer_po_number }}
+                                        {% if sales_order.customer_po_file %}
+                                        <a href="{{ sales_order.customer_po_file.url }}" class="btn btn-sm btn-info ms-2" target="_blank">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th width="40%">Order Date:</th>
+                                    <td>{{ sales_order.order_date }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Expected Delivery:</th>
+                                    <td class="{% if sales_order.is_overdue %}text-danger{% endif %}">
+                                        {{ sales_order.expected_delivery_date }}
+                                        {% if sales_order.actual_delivery_date %}
+                                        <br><small class="text-success">Delivered: {{ sales_order.actual_delivery_date }}</small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Quotation:</th>
+                                    <td>
+                                        {% if sales_order.quotation %}
+                                        <a href="{% url 'crm:quotation_detail' sales_order.quotation.pk %}" class="text-decoration-none">
+                                            {{ sales_order.quotation.quotation_number }}
+                                        </a>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Progress:</th>
+                                    <td>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                 style="width: {{ sales_order.progress_percentage }}%"
+                                                 aria-valuenow="{{ sales_order.progress_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ sales_order.progress_percentage }}% Complete</small>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Information -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-truck me-2"></i>Delivery Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Delivery Address:</strong>
+                                    <p class="text-muted">{{ sales_order.delivery_address|linebreaks }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Site Contact:</strong>
+                                    <p class="text-muted">
+                                        {{ sales_order.site_contact_person|default:"-" }}<br>
+                                        {{ sales_order.site_contact_phone|default:"" }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Commercial Terms -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-file-contract me-2"></i>Commercial Terms
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Currency:</strong> {{ sales_order.get_currency_display }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Payment Terms:</strong> {{ sales_order.payment_terms }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Delivery Terms:</strong> {{ sales_order.delivery_terms }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Information -->
+                    {% if sales_order.project_manager or sales_order.site_supervisor %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-project-diagram me-2"></i>Project Information
+                            </h6>
+                            <div class="row">
+                                {% if sales_order.project_manager %}
+                                <div class="col-md-6">
+                                    <strong>Project Manager:</strong> {{ sales_order.project_manager.get_full_name }}
+                                </div>
+                                {% endif %}
+                                {% if sales_order.site_supervisor %}
+                                <div class="col-md-6">
+                                    <strong>Site Supervisor:</strong> {{ sales_order.site_supervisor }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if sales_order.project_requirements %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-tasks me-2"></i>Project Requirements
+                            </h6>
+                            <p>{{ sales_order.project_requirements|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if sales_order.safety_requirements %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-shield-alt me-2"></i>Safety Requirements
+                            </h6>
+                            <p>{{ sales_order.safety_requirements|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if sales_order.notes %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">
+                                <i class="fas fa-sticky-note me-2"></i>Additional Notes
+                            </h6>
+                            <p>{{ sales_order.notes|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sales Order Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Order Items ({{ items.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if items %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Service Description</th>
+                                    <th>Quantity</th>
+                                    <th>Completed</th>
+                                    <th>Progress</th>
+                                    <th>Unit Price</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <strong>{{ item.service_description }}</strong>
+                                        {% if item.specifications %}
+                                        <br><small class="text-muted">{{ item.specifications }}</small>
+                                        {% endif %}
+                                        {% if item.assigned_equipment %}
+                                        <br><small class="text-info"><i class="fas fa-cogs me-1"></i>{{ item.assigned_equipment }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.quantity }} {{ item.get_unit_display }}</td>
+                                    <td>{{ item.completed_quantity }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                 style="width: {{ item.completion_percentage }}%"
+                                                 aria-valuenow="{{ item.completion_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ item.completion_percentage }}%</small>
+                                    </td>
+                                    <td>₹{{ item.unit_price|floatformat:2|intcomma }}</td>
+                                    <td><strong>₹{{ item.line_total|floatformat:2|intcomma }}</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if item.status == 'completed' %}success{% elif item.status == 'in_progress' %}info{% elif item.status == 'planned' %}primary{% else %}secondary{% endif %}">
+                                            {{ item.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% if item.planned_start_date or item.actual_start_date %}
+                                <tr class="bg-light">
+                                    <td colspan="8">
+                                        <small>
+                                            <strong>Timeline:</strong>
+                                            {% if item.planned_start_date %}Planned: {{ item.planned_start_date }} to {{ item.planned_end_date }}{% endif %}
+                                            {% if item.actual_start_date %} | Actual: {{ item.actual_start_date }} to {{ item.actual_end_date|default:"Ongoing" }}{% endif %}
+                                        </small>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td><strong>Subtotal:</strong></td>
+                                    <td><strong>₹{{ sales_order.subtotal|floatformat:2|intcomma }}</strong></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td>Tax ({{ sales_order.tax_rate }}%):</td>
+                                    <td>₹{{ sales_order.tax_amount|floatformat:2|intcomma }}</td>
+                                    <td></td>
+                                </tr>
+                                {% if sales_order.other_charges %}
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td>Other Charges:</td>
+                                    <td>₹{{ sales_order.other_charges|floatformat:2|intcomma }}</td>
+                                    <td></td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td><strong>Total Amount:</strong></td>
+                                    <td><strong>₹{{ sales_order.total_amount|floatformat:2|intcomma }}</strong></td>
+                                    <td></td>
+                                </tr>
+                                {% if sales_order.advance_received %}
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td>Advance Received:</td>
+                                    <td class="text-success">₹{{ sales_order.advance_received|floatformat:2|intcomma }}</td>
+                                    <td></td>
+                                </tr>
+                                {% endif %}
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No order items added.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Actions Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'crm:sales_order_update' sales_order.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Edit Order
+                        </a>
+                        
+                        <a href="#" class="btn btn-info">
+                            <i class="fas fa-download me-2"></i>Download PDF
+                        </a>
+                        
+                        <!-- Status Update Form -->
+                        <form method="post" action="{% url 'crm:sales_order_update_status' sales_order.pk %}" class="d-grid">
+                            {% csrf_token %}
+                            <select name="status" class="form-select mb-2" onchange="this.form.submit()">
+                                <option value="">Update Status</option>
+                                {% for value, label in sales_order.ORDER_STATUS %}
+                                <option value="{{ value }}" {% if sales_order.status == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                        
+                        <a href="{% url 'crm:sales_order_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-calculator me-2"></i>Pricing Summary</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-borderless">
+                        <tr>
+                            <td>Subtotal:</td>
+                            <td class="text-end">₹{{ sales_order.subtotal|floatformat:2|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Tax ({{ sales_order.tax_rate }}%):</td>
+                            <td class="text-end">₹{{ sales_order.tax_amount|floatformat:2|intcomma }}</td>
+                        </tr>
+                        {% if sales_order.other_charges %}
+                        <tr>
+                            <td>Other Charges:</td>
+                            <td class="text-end">₹{{ sales_order.other_charges|floatformat:2|intcomma }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr class="border-top">
+                            <td><strong>Total:</strong></td>
+                            <td class="text-end"><strong>₹{{ sales_order.total_amount|floatformat:2|intcomma }}</strong></td>
+                        </tr>
+                        {% if sales_order.advance_received %}
+                        <tr>
+                            <td>Advance Received:</td>
+                            <td class="text-end text-success">₹{{ sales_order.advance_received|floatformat:2|intcomma }}</td>
+                        </tr>
+                        <tr>
+                            <td>Balance Due:</td>
+                            <td class="text-end text-danger"><strong>₹{{ sales_order.total_amount|subtract:sales_order.advance_received|floatformat:2|intcomma }}</strong></td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-building me-2"></i>Customer Information</h6>
+                </div>
+                <div class="card-body">
+                    <h6>{{ sales_order.customer.name }}</h6>
+                    <p class="mb-1">
+                        <i class="fas fa-id-card me-2 text-muted"></i>
+                        {{ sales_order.customer.customer_id }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-phone me-2 text-muted"></i>
+                        {{ sales_order.customer.billing_contact_phone|default:"-" }}
+                    </p>
+                    <p class="mb-1">
+                        <i class="fas fa-envelope me-2 text-muted"></i>
+                        {{ sales_order.customer.billing_contact_email|default:"-" }}
+                    </p>
+                    <div class="mt-2">
+                        <strong>Delivery Address:</strong>
+                        <p class="small text-muted">{{ sales_order.delivery_address|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Information</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1">
+                        <strong>Created:</strong> {{ sales_order.created_date|date:"M d, Y H:i" }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>By:</strong> {{ sales_order.created_by.get_full_name|default:sales_order.created_by.username }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Last Modified:</strong> {{ sales_order.last_modified|date:"M d, Y H:i" }}
+                    </p>
+                    {% if sales_order.actual_delivery_date %}
+                    <p class="mb-1">
+                        <strong>Actual Delivery:</strong> {{ sales_order.actual_delivery_date }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Project Team -->
+            {% if sales_order.project_manager or sales_order.site_supervisor %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-users me-2"></i>Project Team</h6>
+                </div>
+                <div class="card-body">
+                    {% if sales_order.project_manager %}
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-user-tie text-primary me-2"></i>
+                        <div>
+                            <strong>Project Manager</strong><br>
+                            <small class="text-muted">{{ sales_order.project_manager.get_full_name }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if sales_order.site_supervisor %}
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-hard-hat text-warning me-2"></i>
+                        <div>
+                            <strong>Site Supervisor</strong><br>
+                            <small class="text-muted">{{ sales_order.site_supervisor }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'js/crm.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+{% if messages %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      {% for message in messages %}
+        Swal.fire({
+          title: "{{ message.tags|title }}",
+          text: "{{ message|escapejs }}",
+          icon: "{{ message.tags }}", // valid: success, error, warning, info, question
+          confirmButtonText: "OK",
+          background: theme === 'dark' ? '#343a40' : '#ffffff',
+          color: theme === 'dark' ? '#f8f9fa' : '#212529',
+          confirmButtonColor: theme === 'dark' ? '#0d6efd' : '#0d6efd',
+          customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+          }
+        });
+      {% endfor %}
+    });
+  </script>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+<script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+<script src="{% static 'js/vendor/select2.min.js' %}"></script>
+{% endblock %}
