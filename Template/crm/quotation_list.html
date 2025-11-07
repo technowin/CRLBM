@@ -56,7 +56,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status_f" class="form-select">
                         <option value="">All Status</option>
@@ -67,7 +67,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="customer" class="form-label">Customer</label>
                     <select name="customer" id="customer" class="form-select">
                         <option value="">All Customers</option>
@@ -78,7 +78,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="search" class="form-label">Search</label>
                     <div class="input-group">
                         <input type="text" name="search" id="search" class="form-control" 
@@ -94,12 +94,17 @@
                         <a href="{% url 'crm:quotation_list' %}" class="btn btn-secondary">Clear</a>
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <a href="{% url 'crm:quotation_create' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus me-2"></i>Create New Quotation
+                    </a>
+                </div>
             </form>
         </div>
     </div>
 
     <!-- Statistics -->
-    <div class="row mb-4">
+    {% comment %} <div class="row mb-4">
         <div class="col-md-2 col-6">
             <div class="card bg-primary text-white text-center">
                 <div class="card-body py-3">
@@ -141,7 +146,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
 
     <!-- Quotations Table -->
     <div class="card">
