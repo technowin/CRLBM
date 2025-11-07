@@ -79,17 +79,19 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label for="{{ form.division.id_for_label }}" class="form-label">Division *</label>
-                                                {{ form.division }}
+                                                {% comment %} {{ form.division }}
                                                 {% if form.division.errors %}
                                                 <div class="text-danger">{{ form.division.errors }}</div>
-                                                {% endif %}
+                                                {% endif %} {% endcomment %}
+                                                 <input type="text">
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="{{ form.customer.id_for_label }}" class="form-label">Customer *</label>
-                                                {{ form.customer }}
+                                                {% comment %} {{ form.customer }}
                                                 {% if form.customer.errors %}
                                                 <div class="text-danger">{{ form.customer.errors }}</div>
-                                                {% endif %}
+                                                {% endif %} {% endcomment %}
+                                                 <input type="text">
                                             </div>
                                             <div class="col-md-8">
                                                 <label for="{{ form.project.id_for_label }}" class="form-label">Project *</label>
