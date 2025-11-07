@@ -167,7 +167,7 @@
                     </thead>
                     <tbody>
                         {% for quotation in quotations %}
-                        <tr class="{% if quotation.is_expired %}table-warning{% endif %}">
+                        <tr class="{% if quotation.is_expired %}table-warning1{% endif %}">
                             <td>
                                 <strong>
                                     <a href="{% url 'crm:quotation_detail' quotation.pk %}" class="text-decoration-none">

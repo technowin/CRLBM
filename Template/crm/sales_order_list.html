@@ -167,7 +167,7 @@
                     </thead>
                     <tbody>
                         {% for order in sales_orders %}
-                        <tr class="{% if order.is_overdue %}table-warning{% endif %}">
+                        <tr class="{% if order.is_overdue %}table-warning1{% endif %}">
                             <td>
                                 <strong>
                                     <a href="{% url 'crm:sales_order_detail' order.pk %}" class="text-decoration-none">
