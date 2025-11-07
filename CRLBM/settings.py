@@ -157,6 +157,7 @@ LOCAL_APPS = [
     'Masters',
     'Reports',
     'CMS',
+    'crm.apps.CrmConfig',
     'vendors.apps.VendorsConfig',
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
