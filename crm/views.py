@@ -10,10 +10,11 @@ from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 
-from .models import Enquiry, EnquiryItem, Quotation, QuotationItem, SalesOrder, SalesOrderItem
-from .forms import EnquiryForm, EnquiryItemForm, QuotationForm, QuotationItemForm, SalesOrderForm, SalesOrderItemForm
-from CMS.models import CustomerMaster, CustomerConcernPerson
+from .models import *
+from .forms import *
+from CMS.models import CustomerMaster, CustomerConcernPerson,StateUTMaster,DivisionMaster
 from Account.models import CustomUser
+from django.contrib.auth.decorators import login_required
 
 # Dashboard View
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -656,3 +657,201 @@ SalesOrderItemFormSet = inlineformset_factory(
         'assigned_team', 'status', 'notes'
     ]
 )
+
+
+@login_required
+def site_list(request):
+    """List all sites with filtering and search functionality"""
+    sites = Site.objects.select_related('project', 'region', 'state', 'site_head').prefetch_related('involved_employees')
+    
+    search_form = SiteSearchForm(request.GET)
+    
+    if search_form.is_valid():
+        name = search_form.cleaned_data.get('name')
+        project = search_form.cleaned_data.get('project')
+        region = search_form.cleaned_data.get('region')
+        state = search_form.cleaned_data.get('state')
+        is_active = search_form.cleaned_data.get('is_active')
+        
+        if name:
+            sites = sites.filter(name__icontains=name)
+        if project:
+            sites = sites.filter(project=project)
+        if region:
+            sites = sites.filter(region=region)
+        if state:
+            sites = sites.filter(state=state)
+        if is_active:
+            if is_active == 'true':
+                sites = sites.filter(is_active=True)
+            elif is_active == 'false':
+                sites = sites.filter(is_active=False)
+    
+    # Order by creation date, newest first
+    sites = sites.order_by('-created_at')
+    
+    context = {
+        'sites': sites,
+        'search_form': search_form,
+        'total_sites': sites.count(),
+        'active_sites': sites.filter(is_active=True).count(),
+    }
+    return render(request, 'crm/site_list.html', context)
+
+
+@login_required
+def site_create(request):
+    """Create a new site with project selection"""
+    if request.method == 'POST':
+        form = SiteForm(request.POST)
+        if form.is_valid():
+            site = form.save(commit=False)
+            site.created_by = request.user
+            
+            # Auto-generate site ID if not provided
+            if not site.site_id:
+                project_code = site.project.project_id[:3].upper()
+                site_count = Site.objects.filter(project=site.project).count() + 1
+                site.site_id = f"{project_code}-SITE-{site_count:03d}"
+            
+            site.save()
+            messages.success(request, f'Site "{site.name}" created successfully!')
+            return redirect('site_detail', pk=site.pk)
+    else:
+        form = SiteForm()
+    
+    context = {
+        'form': form,
+        'title': 'Create New Site',
+        'projects': Project.objects.filter(is_active=True),
+    }
+    return render(request, 'crm/site_form.html', context)
+
+
+@login_required
+def site_update(request, pk):
+    """Update an existing site"""
+    site = get_object_or_404(Site, pk=pk)
+    
+    if request.method == 'POST':
+        form = SiteForm(request.POST, instance=site)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Site "{site.name}" updated successfully!')
+            return redirect('site_detail', pk=site.pk)
+    else:
+        form = SiteForm(instance=site)
+    
+    context = {
+        'form': form,
+        'title': f'Update Site: {site.name}',
+        'site': site,
+        'projects': Project.objects.filter(is_active=True),
+    }
+    return render(request, 'crm/site_form.html', context)
+
+
+@login_required
+def site_detail(request, pk):
+    """View site details with all related information"""
+    site = get_object_or_404(
+        Site.objects.select_related('project', 'region', 'state', 'site_head', 'created_by')
+        .prefetch_related('involved_employees__employee', 'documents'),
+        pk=pk
+    )
+    
+    # Form for adding employees
+    employee_form = SiteEmployeeForm()
+    
+    context = {
+        'site': site,
+        'employee_form': employee_form,
+        'involved_employees': site.involved_employees.select_related('employee'),
+        'documents': site.documents.all(),
+    }
+    return render(request, 'crm/site_detail.html', context)
+
+
+@login_required
+def site_toggle_active(request, pk):
+    """Toggle site active status"""
+    site = get_object_or_404(Site, pk=pk)
+    
+    if request.method == 'POST':
+        site.is_active = not site.is_active
+        site.save()
+        
+        status = "activated" if site.is_active else "deactivated"
+        messages.success(request, f'Site "{site.name}" has been {status}.')
+    
+    return redirect('site_list')
+
+
+@login_required
+def add_site_employee(request, pk):
+    """Add employee to site"""
+    site = get_object_or_404(Site, pk=pk)
+    
+    if request.method == 'POST':
+        form = SiteEmployeeForm(request.POST)
+        if form.is_valid():
+            site_employee = form.save(commit=False)
+            site_employee.site = site
+            
+            # Check if employee already assigned to this site
+            if SiteEmployee.objects.filter(site=site, employee=site_employee.employee).exists():
+                messages.error(request, 'This employee is already assigned to this site.')
+            else:
+                site_employee.save()
+                messages.success(request, f'Employee added to site "{site.name}" successfully!')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    
+    return redirect('site_detail', pk=site.pk)
+
+
+@login_required
+def remove_site_employee(request, site_pk, employee_pk):
+    """Remove employee from site"""
+    site = get_object_or_404(Site, pk=site_pk)
+    site_employee = get_object_or_404(SiteEmployee, pk=employee_pk, site=site)
+    
+    if request.method == 'POST':
+        employee_name = site_employee.employee.get_full_name()
+        site_employee.delete()
+        messages.success(request, f'Employee {employee_name} removed from site.')
+    
+    return redirect('site_detail', pk=site.pk)
+
+
+@login_required
+def load_projects(request):
+    """AJAX view to load projects based on customer"""
+    customer_id = request.GET.get('customer_id')
+    if customer_id:
+        projects = Project.objects.filter(customer_id=customer_id, is_active=True)
+        return JsonResponse(list(projects.values('id', 'name', 'project_id')), safe=False)
+    return JsonResponse([], safe=False)
+
+
+@login_required
+def site_dashboard(request):
+    """Site management dashboard"""
+    total_sites = Site.objects.count()
+    active_sites = Site.objects.filter(is_active=True).count()
+    company_yards = Site.objects.filter(site_type='company_yard').count()
+    
+    # Sites by region
+    sites_by_region = Site.objects.values('region__name').annotate(count=models.Count('id'))
+    
+    # Recent sites
+    recent_sites = Site.objects.select_related('project', 'site_head').order_by('-created_at')[:5]
+    
+    context = {
+        'total_sites': total_sites,
+        'active_sites': active_sites,
+        'company_yards': company_yards,
+        'sites_by_region': sites_by_region,
+        'recent_sites': recent_sites,
+    }
+    return render(request, 'crm/site_dashboard.html', context)

@@ -572,3 +572,125 @@ class SalesOrderItem(models.Model):
         if self.quantity > 0:
             return (self.completed_quantity / self.quantity * 100).quantize(Decimal('1.00'))
         return Decimal('0.00')
+    
+
+class Project(models.Model):
+    PROJECT_STATUS = [
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('on_hold', 'On Hold'),
+    ]
+
+    name = models.CharField(max_length=200)
+    project_id = models.CharField(max_length=20, unique=True)
+    customer = models.ForeignKey('CMS.CustomerMaster', on_delete=models.CASCADE)
+    division = models.ForeignKey('CMS.DivisionMaster', on_delete=models.CASCADE)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=PROJECT_STATUS, default='active')
+    is_active = models.BooleanField(default=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.project_id} - {self.name}"
+
+    class Meta:
+        verbose_name = "Project"
+        verbose_name_plural = "Projects"
+
+class Region(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    code = models.CharField(max_length=10, unique=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Region"
+        verbose_name_plural = "Regions"
+
+class Site(models.Model):
+    SITE_TYPES = [
+        ('project_site', 'Project Site'),
+        ('company_yard', 'Company Yard'),
+        ('client_site', 'Client Site'),
+    ]
+
+    # Basic Information
+    name = models.CharField(max_length=200)
+    site_id = models.CharField(max_length=20, unique=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    site_type = models.CharField(max_length=20, choices=SITE_TYPES, default='project_site')
+    is_active = models.BooleanField(default=True)
+    
+    # Location Details
+    region = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, blank=True)
+    state = models.ForeignKey('CMS.StateUTMaster', on_delete=models.SET_NULL, null=True)
+    address = models.TextField()
+    site_location = models.CharField(max_length=300)
+    pin_code = models.CharField(max_length=6, validators=[RegexValidator(r'^\d{6}$', 'Enter a valid 6-digit PIN code')])
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    
+    # Management
+    site_head = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, 
+                                 related_name='site_head')
+    
+    # Meta
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='sites_created')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.site_id} - {self.name}"
+
+    class Meta:
+        verbose_name = "Site"
+        verbose_name_plural = "Sites"
+        ordering = ['-created_at']
+
+
+class SiteEmployee(models.Model):
+    ROLES = [
+        ('site_head', 'Site Head'),
+        ('project_manager', 'Project Manager'),
+        ('supervisor', 'Supervisor'),
+        ('safety_officer', 'Safety Officer'),
+        ('logistics_manager', 'Logistics Manager'),
+    ]
+
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='involved_employees')
+    employee = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    role = models.CharField(max_length=50, choices=ROLES)
+    is_reporting_authority = models.BooleanField(default=False)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.employee.get_full_name()} - {self.role} - {self.site}"
+
+    class Meta:
+        verbose_name = "Site Employee"
+        verbose_name_plural = "Site Employees"
+        unique_together = ['site', 'employee']
+
+
+class SiteDocument(models.Model):
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name='documents')
+    document_type = models.CharField(max_length=100)
+    file = models.FileField(upload_to='site_documents/')
+    description = models.TextField(blank=True)
+    uploaded_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.document_type} - {self.site}"
+
+    class Meta:
+        verbose_name = "Site Document"
+        verbose_name_plural = "Site Documents"

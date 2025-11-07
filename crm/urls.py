@@ -33,4 +33,17 @@ urlpatterns = [
     # AJAX URLs
     path('ajax/get-contact-persons/', views.get_contact_persons, name='get_contact_persons'),
     path('ajax/get-enquiry-items/', views.get_enquiry_items, name='get_enquiry_items'),
+
+     # Site Management URLs
+    path('sites/', views.site_list, name='site_list'),
+    path('sites/dashboard/', views.site_dashboard, name='site_dashboard'),
+    path('sites/create/', views.site_create, name='site_create'),
+    path('sites/<int:pk>/', views.site_detail, name='site_detail'),
+    path('sites/<int:pk>/update/', views.site_update, name='site_update'),
+    path('sites/<int:pk>/toggle-active/', views.site_toggle_active, name='site_toggle_active'),
+    path('sites/<int:pk>/add-employee/', views.add_site_employee, name='add_site_employee'),
+    path('sites/<int:site_pk>/remove-employee/<int:employee_pk>/', views.remove_site_employee, name='remove_site_employee'),
+    
+    # AJAX URLs
+    path('ajax/load-projects/', views.load_projects, name='ajax_load_projects'),
 ]

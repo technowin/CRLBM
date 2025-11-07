@@ -180,3 +180,20 @@
                 box-shadow: none !important;
             }
         }
+
+         .accordion-button:not(.collapsed) {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .badge-site-active {
+            background-color: var(--success-color);
+        }
+        
+        .badge-site-inactive {
+            background-color: var(--accent-color);
+        }
+        
+        .site-type-badge {
+            background-color: var(--primary-color);
+        }

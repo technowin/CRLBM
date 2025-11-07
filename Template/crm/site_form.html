@@ -1,0 +1,315 @@
+{% extends "bootstrap/vertical_base.html" %}
+
+{% load humanize %}
+
+{% load custom_filters %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/mtp.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/crm.css' %}" rel="stylesheet" type="text/css" >
+{% endblock %}
+
+{% block title %}{{ title }} - Steel Carriers{% endblock %}
+{% comment %} {% block page_title %}{% endblock %} {% endcomment %}
+
+{% block content %}
+<!-- Header Row -->
+    <div class="row">
+        <div class="col">
+            <h4><i class="bi bi-file-earmark-text"></i> {% block page_title %} </h4>
+        </div>
+        <div class="col-auto mt-2">
+            <div class="btn-group mb-2">
+               
+            </div>
+        </div>
+    </div>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-building me-2"></i>{{ title }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="siteForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information Accordion -->
+                        <div class="accordion" id="siteAccordion">
+                            <!-- Project Details -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#projectDetails">
+                                        <i class="bi bi-clipboard-data me-2"></i>
+                                        1. Project & Basic Information
+                                    </button>
+                                </h2>
+                                <div id="projectDetails" class="accordion-collapse collapse show" data-bs-parent="#siteAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="{{ form.division.id_for_label }}" class="form-label">Division *</label>
+                                                {{ form.division }}
+                                                {% if form.division.errors %}
+                                                <div class="text-danger">{{ form.division.errors }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.customer.id_for_label }}" class="form-label">Customer *</label>
+                                                {{ form.customer }}
+                                                {% if form.customer.errors %}
+                                                <div class="text-danger">{{ form.customer.errors }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-8">
+                                                <label for="{{ form.project.id_for_label }}" class="form-label">Project *</label>
+                                                {{ form.project }}
+                                                {% if form.project.errors %}
+                                                <div class="text-danger">{{ form.project.errors }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="{{ form.site_type.id_for_label }}" class="form-label">Site Type</label>
+                                                {{ form.site_type }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Site Details -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#siteDetails">
+                                        <i class="bi bi-geo-alt me-2"></i>
+                                        2. Site Details
+                                    </button>
+                                </h2>
+                                <div id="siteDetails" class="accordion-collapse collapse" data-bs-parent="#siteAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="{{ form.name.id_for_label }}" class="form-label">Site Name *</label>
+                                                {{ form.name }}
+                                                {% if form.name.errors %}
+                                                <div class="text-danger">{{ form.name.errors }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.site_id.id_for_label }}" class="form-label">Site ID</label>
+                                                {{ form.site_id }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.site_head.id_for_label }}" class="form-label">Site Head *</label>
+                                                {{ form.site_head }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.region.id_for_label }}" class="form-label">Region</label>
+                                                {{ form.region }}
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="{{ form.address.id_for_label }}" class="form-label">Site Address *</label>
+                                                {{ form.address }}
+                                                {% if form.address.errors %}
+                                                <div class="text-danger">{{ form.address.errors }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.site_location.id_for_label }}" class="form-label">Site Location *</label>
+                                                {{ form.site_location }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="{{ form.state.id_for_label }}" class="form-label">GST State *</label>
+                                                {{ form.state }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="{{ form.pin_code.id_for_label }}" class="form-label">PIN Code</label>
+                                                {{ form.pin_code }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.latitude.id_for_label }}" class="form-label">Latitude</label>
+                                                {{ form.latitude }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.longitude.id_for_label }}" class="form-label">Longitude</label>
+                                                {{ form.longitude }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Status & Options -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statusOptions">
+                                        <i class="bi bi-toggle-on me-2"></i>
+                                        3. Status & Options
+                                    </button>
+                                </h2>
+                                <div id="statusOptions" class="accordion-collapse collapse" data-bs-parent="#siteAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    {{ form.is_active }}
+                                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                                        Active Site
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input" id="companyYard">
+                                                    <label class="form-check-label" for="companyYard">
+                                                        Company Yard
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'crm:site_list' %}" class="btn btn-secondary">
+                                        <i class="bi bi-arrow-left me-2"></i>Back to List
+                                    </a>
+                                    <div>
+                                        <button type="reset" class="btn btn-warning me-2">
+                                            <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check-circle me-2"></i>
+                                            {% if site %}Update Site{% else %}Create Site{% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'js/crm.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+{% if messages %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      {% for message in messages %}
+        Swal.fire({
+          title: "{{ message.tags|title }}",
+          text: "{{ message|escapejs }}",
+          icon: "{{ message.tags }}", // valid: success, error, warning, info, question
+          confirmButtonText: "OK",
+          background: theme === 'dark' ? '#343a40' : '#ffffff',
+          color: theme === 'dark' ? '#f8f9fa' : '#212529',
+          confirmButtonColor: theme === 'dark' ? '#0d6efd' : '#0d6efd',
+          customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+          }
+        });
+      {% endfor %}
+    });
+  </script>
+{% endif %}
+
+<script>
+    // Dynamic project loading based on customer selection
+    document.getElementById('id_customer').addEventListener('change', function() {
+        const customerId = this.value;
+        const projectSelect = document.getElementById('id_project');
+        
+        if (customerId) {
+            fetch(`/crm/ajax/load-projects/?customer_id=${customerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    projectSelect.innerHTML = '<option value="">Select Project</option>';
+                    data.forEach(project => {
+                        const option = document.createElement('option');
+                        option.value = project.id;
+                        option.textContent = `${project.project_id} - ${project.name}`;
+                        projectSelect.appendChild(option);
+                    });
+                });
+        } else {
+            projectSelect.innerHTML = '<option value="">Select Project</option>';
+        }
+    });
+
+    // Auto-generate site ID when project changes
+    document.getElementById('id_project').addEventListener('change', function() {
+        const projectText = this.options[this.selectedIndex].text;
+        const siteIdField = document.getElementById('id_site_id');
+        
+        if (projectText && !siteIdField.value) {
+            const projectCode = projectText.split(' - ')[0].substring(0, 3).toUpperCase();
+            const timestamp = new Date().getTime().toString().slice(-3);
+            siteIdField.value = `${projectCode}-SITE-${timestamp}`;
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+<script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+<script src="{% static 'js/vendor/select2.min.js' %}"></script>
+{% endblock %}

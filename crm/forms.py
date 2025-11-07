@@ -1,8 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from .models import Enquiry, EnquiryItem, Quotation, QuotationItem, SalesOrder, SalesOrderItem
-from CMS.models import CustomerMaster, CustomerConcernPerson
+from .models import *
+from CMS.models import CustomerMaster, CustomerConcernPerson,StateUTMaster,DivisionMaster
 
 class EnquiryForm(forms.ModelForm):
     required_by_date = forms.DateField(
@@ -351,3 +351,158 @@ class SalesOrderItemForm(forms.ModelForm):
             raise ValidationError("Completed quantity cannot exceed ordered quantity")
         
         return completed_quantity
+    
+
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['name', 'project_id', 'customer', 'division', 'description', 'status', 'is_active', 'start_date', 'end_date']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter project name (Do not use customer name)'
+            }),
+            'project_id': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Project ID will be auto-generated',
+                'readonly': True
+            }),
+            'customer': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'division': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Enter project description'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+        }
+
+
+class SiteForm(forms.ModelForm):
+    class Meta:
+        model = Site
+        fields = [
+            'name', 'site_id', 'project', 'site_type', 'is_active', 
+            'region', 'state', 'address', 'site_location', 'pin_code',
+            'latitude', 'longitude', 'site_head'
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter site name'
+            }),
+            'site_id': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Site ID will be auto-generated',
+                'readonly': True
+            }),
+            'project': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'site_type': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'region': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'state': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'address': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Enter complete site address'
+            }),
+            'site_location': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter site location'
+            }),
+            'pin_code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter 6-digit PIN code',
+                'pattern': '[0-9]{6}',
+                'maxlength': '6'
+            }),
+            'latitude': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': 'any',
+                'placeholder': 'Latitude'
+            }),
+            'longitude': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': 'any',
+                'placeholder': 'Longitude'
+            }),
+            'site_head': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
+
+
+class SiteEmployeeForm(forms.ModelForm):
+    class Meta:
+        model = SiteEmployee
+        fields = ['employee', 'role', 'is_reporting_authority', 'start_date', 'end_date', 'is_active']
+        widgets = {
+            'employee': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'role': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'is_reporting_authority': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
+
+
+class SiteSearchForm(forms.Form):
+    name = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Search by site name...'
+    }))
+    project = forms.ModelChoiceField(queryset=Project.objects.all(), required=False, widget=forms.Select(attrs={
+        'class': 'form-select'
+    }))
+    region = forms.ModelChoiceField(queryset=Region.objects.all(), required=False, widget=forms.Select(attrs={
+        'class': 'form-select'
+    }))
+    state = forms.ModelChoiceField(queryset=StateUTMaster.objects.all(), required=False, widget=forms.Select(attrs={
+        'class': 'form-select'
+    }))
+    is_active = forms.ChoiceField(
+        choices=[('', 'All'), ('true', 'Active'), ('false', 'Inactive')],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
