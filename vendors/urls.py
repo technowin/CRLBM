@@ -3,14 +3,14 @@
 from django.shortcuts import render
 from django.urls import path
 from . import views
-from .views import VendorListView, VendorDetailView
+from .views import  VendorDetailView
 
 app_name = 'vendors'
 
 urlpatterns = [
     # Dashboard and Main Views
     path('', views.vendor_dashboard, name='vendor_dashboard'),
-    path('list/', VendorListView.as_view(), name='vendor_list'),
+    path('list/', views.vendor_list, name='vendor_list'),
     path('export/', views.vendor_export, name='vendor_export'),
     
     # Vendor Wizard Registration

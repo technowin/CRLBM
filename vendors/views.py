@@ -45,51 +45,15 @@ def vendor_dashboard(request):
     }
     return render(request, 'vendors/dashboard.html', context)
 
-class VendorListView(ListView):
-    model = Vendor
-    template_name = 'vendors/vendor_list.html'
-    context_object_name = 'vendors'
-    paginate_by = 20
-    
-    def get_queryset(self):
-        queryset = Vendor.objects.select_related(
-            'country', 'category', 'created_by'
-        ).prefetch_related('contacts', 'bank_details').all()
-        
-        # Apply filters
-        form = VendorSearchForm(self.request.GET)
-        if form.is_valid():
-            search = form.cleaned_data.get('search')
-            company_type = form.cleaned_data.get('company_type')
-            status = form.cleaned_data.get('status')
-            is_active = form.cleaned_data.get('is_active')
-            
-            if search:
-                queryset = queryset.filter(
-                    Q(company_name__icontains=search) |
-                    Q(display_name__icontains=search) |
-                    Q(pan_number__icontains=search) |
-                    Q(vendor_code__icontains=search)
-                )
-            
-            if company_type:
-                queryset = queryset.filter(company_type=company_type)
-                
-            if status:
-                queryset = queryset.filter(status=status)
-                
-            if is_active:
-                queryset = queryset.filter(is_active=(is_active == 'true'))
-        
-        return queryset.order_by('-created_at')
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        queryset = context['vendors']  # already populated queryset from get_queryset()
-        context['search_form'] = VendorSearchForm(self.request.GET)
-        context['total_count'] = queryset.count()
-        return context
+from django.db.models import Q
+from django.views.generic import ListView
 
+def vendor_list(request):
+    # Fetch all vendors from DB (you can add filters later)
+    vendors = Vendor.objects.all().order_by('-id')
+    
+    # Pass the vendors to the template
+    return render(request, 'vendors/vendor_list.html', {'vendors': vendors})
 
 @login_required
 def vendor_wizard(request, step=1, vendor_id=None):

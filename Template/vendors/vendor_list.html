@@ -56,8 +56,8 @@
         </div>
     </div>
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+<div class="card shadow mb-4 mt-3">
+    {% comment %} <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">Vendor Directory</h6>
         <span class="badge bg-primary">{{ total_count }} vendors</span>
     </div>
@@ -81,7 +81,7 @@
                     <i class="bi bi-funnel"></i> Filter
                 </button>
             </div>
-        </form>
+        </form> {% endcomment %}
 
         <!-- Vendors Table -->
         <div class="table-responsive">
@@ -144,12 +144,14 @@
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 {% if perms.vendors.can_review_vendor and vendor.status == 'submitted' %}
+                                &nbsp;&nbsp;
                                 <a href="{% url 'vendors:vendor_review' vendor.pk %}" 
                                    class="btn btn-warning" title="Review">
                                     <i class="bi bi-clipboard-check"></i>
                                 </a>
                                 {% endif %}
                                 {% if perms.vendors.can_approve_vendor and not vendor.is_blacklisted %}
+                                &nbsp;&nbsp;
                                 <a href="{% url 'vendors:vendor_blacklist' vendor.pk %}" 
                                    class="btn btn-danger" title="Blacklist">
                                     <i class="bi bi-slash-circle"></i>
