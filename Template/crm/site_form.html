@@ -29,6 +29,43 @@
 
 <link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
 
+<style>
+.section-card {
+    {% comment %} border: 1px solid #dee2e6; {% endcomment %}
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    {% comment %} background: #fff; {% endcomment %}
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.section-header {
+    {% comment %} background: #f8f9fa; {% endcomment %}
+    padding: 1rem 1.5rem;
+    {% comment %} border-bottom: 1px solid #dee2e6; {% endcomment %}
+    border-radius: 8px 8px 0 0;
+}
+
+.section-header h5 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.section-header i {
+    font-size: 1.1em;
+    margin-right: 0.5rem;
+}
+
+.section-body {
+    padding: 1.5rem;
+    border-radius: 0 0 8px 8px;
+}
+
+
+</style>
+
 <!-- Selectize.js CSS -->
 <link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
 <link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
@@ -40,165 +77,211 @@
 {% comment %} {% block page_title %}{% endblock %} {% endcomment %}
 
 {% block content %}
-<!-- Header Row -->
-    <div class="row">
-        <div class="col">
-            <h4><i class="bi bi-file-earmark-text"></i> {{ title }} </h4>
-        </div>
-        <div class="col-auto mt-2">
-            <div class="btn-group mb-2">
-               
-            </div>
-        </div>
-    </div>
-<div class="container-fluid">
+
+
+<div class="container-fluid mt-3">
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-building me-2"></i>{{ title }}
-                    </h5>
+                    <h3 class="card-title mb-0">
+                        <i class="bi bi-building"> </i>&nbsp;{{ title }}
+                    </h3>
                 </div>
                 <div class="card-body">
-                    <form method="post" id="siteForm">
+                    <form method="post" id="siteForm" novalidate>
                         {% csrf_token %}
                         
-                        <!-- Basic Information Accordion -->
-                        <div class="accordion" id="siteAccordion">
-                            <!-- Project Details -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#projectDetails">
-                                        <i class="bi bi-clipboard-data me-2"></i>
-                                        1. Project & Basic Information
-                                    </button>
-                                </h2>
-                                <div id="projectDetails" class="accordion-collapse collapse show" data-bs-parent="#siteAccordion">
-                                    <div class="accordion-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label for="{{ form.division.id_for_label }}" class="form-label">Division *</label>
-                                                {% comment %} {{ form.division }}
-                                                {% if form.division.errors %}
-                                                <div class="text-danger">{{ form.division.errors }}</div>
-                                                {% endif %} {% endcomment %}
-                                                 <input type="text">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="{{ form.customer.id_for_label }}" class="form-label">Customer *</label>
-                                                {% comment %} {{ form.customer }}
-                                                {% if form.customer.errors %}
-                                                <div class="text-danger">{{ form.customer.errors }}</div>
-                                                {% endif %} {% endcomment %}
-                                                 <input type="text">
-                                            </div>
-                                            <div class="col-md-8">
-                                                <label for="{{ form.project.id_for_label }}" class="form-label">Project *</label>
-                                                {{ form.project }}
-                                                {% if form.project.errors %}
-                                                <div class="text-danger">{{ form.project.errors }}</div>
-                                                {% endif %}
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label for="{{ form.site_type.id_for_label }}" class="form-label">Site Type</label>
-                                                {{ form.site_type }}
-                                            </div>
-                                        </div>
+                        <!-- Section 1: Project & Division Information -->
+                        <div class="section-card mb-4">
+                            <div class="bg-primary text-white p-3 rounded-top">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-clipboard-data me-2"></i>
+                                    1. Project & Division Information
+                                </h5>
+                            </div>
+                            <div class="section-body p-4 border rounded-bottom">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.division.id_for_label }}" class="form-label">
+                                            Division <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.division }}
+                                        {% if form.division.errors %}
+                                        <div class="text-danger small mt-1">{{ form.division.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Select the division this site belongs to</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.customer.id_for_label }}" class="form-label">
+                                            Customer <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.customer }}
+                                        {% if form.customer.errors %}
+                                        <div class="text-danger small mt-1">{{ form.customer.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Select the customer for this site</div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="{{ form.project.id_for_label }}" class="form-label">
+                                            Project <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.project }}
+                                        {% if form.project.errors %}
+                                        <div class="text-danger small mt-1">{{ form.project.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Select the project associated with this site</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.site_type.id_for_label }}" class="form-label">Site Type</label>
+                                        {{ form.site_type }}
+                                        {% if form.site_type.errors %}
+                                        <div class="text-danger small mt-1">{{ form.site_type.errors }}</div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Site Details -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#siteDetails">
-                                        <i class="bi bi-geo-alt me-2"></i>
-                                        2. Site Details
-                                    </button>
-                                </h2>
-                                <div id="siteDetails" class="accordion-collapse collapse" data-bs-parent="#siteAccordion">
-                                    <div class="accordion-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label for="{{ form.name.id_for_label }}" class="form-label">Site Name *</label>
-                                                {{ form.name }}
-                                                {% if form.name.errors %}
-                                                <div class="text-danger">{{ form.name.errors }}</div>
-                                                {% endif %}
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="{{ form.site_id.id_for_label }}" class="form-label">Site ID</label>
-                                                {{ form.site_id }}
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="{{ form.site_head.id_for_label }}" class="form-label">Site Head *</label>
-                                                {{ form.site_head }}
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="{{ form.region.id_for_label }}" class="form-label">Region</label>
-                                                {{ form.region }}
-                                            </div>
-                                            <div class="col-12">
-                                                <label for="{{ form.address.id_for_label }}" class="form-label">Site Address *</label>
-                                                {{ form.address }}
-                                                {% if form.address.errors %}
-                                                <div class="text-danger">{{ form.address.errors }}</div>
-                                                {% endif %}
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="{{ form.site_location.id_for_label }}" class="form-label">Site Location *</label>
-                                                {{ form.site_location }}
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label for="{{ form.state.id_for_label }}" class="form-label">GST State *</label>
-                                                {{ form.state }}
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label for="{{ form.pin_code.id_for_label }}" class="form-label">PIN Code</label>
-                                                {{ form.pin_code }}
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="{{ form.latitude.id_for_label }}" class="form-label">Latitude</label>
-                                                {{ form.latitude }}
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="{{ form.longitude.id_for_label }}" class="form-label">Longitude</label>
-                                                {{ form.longitude }}
-                                            </div>
-                                        </div>
+                        <!-- Section 2: Site Basic Information -->
+                        <div class="section-card mb-4">
+                            <div class=" bg-success text-white p-3 rounded-top">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    2. Site Basic Information
+                                </h5>
+                            </div>
+                            <div class="section-body p-4 border rounded-bottom">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.name.id_for_label }}" class="form-label">
+                                            Site Name <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.name }}
+                                        {% if form.name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Enter the official name of the site</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.site_id.id_for_label }}" class="form-label">Site ID</label>
+                                        {{ form.site_id }}
+                                        {% if form.site_id.errors %}
+                                        <div class="text-danger small mt-1">{{ form.site_id.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Auto-generated site identifier</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.site_head.id_for_label }}" class="form-label">
+                                            Site Head <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.site_head }}
+                                        {% if form.site_head.errors %}
+                                        <div class="text-danger small mt-1">{{ form.site_head.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.region.id_for_label }}" class="form-label">Region</label>
+                                        {{ form.region }}
+                                        {% if form.region.errors %}
+                                        <div class="text-danger small mt-1">{{ form.region.errors }}</div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Status & Options -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statusOptions">
-                                        <i class="bi bi-toggle-on me-2"></i>
-                                        3. Status & Options
-                                    </button>
-                                </h2>
-                                <div id="statusOptions" class="accordion-collapse collapse" data-bs-parent="#siteAccordion">
-                                    <div class="accordion-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <div class="form-check form-switch">
-                                                    {{ form.is_active }}
-                                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                                                        Active Site
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input" id="companyYard">
-                                                    <label class="form-check-label" for="companyYard">
-                                                        Company Yard
-                                                    </label>
-                                                </div>
-                                            </div>
+                        <!-- Section 3: Location Details -->
+                        <div class="section-card mb-4">
+                            <div class=" bg-info text-white p-3 rounded-top">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-geo-alt me-2"></i>
+                                    3. Location Details
+                                </h5>
+                            </div>
+                            <div class="section-body p-4 border rounded-bottom">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.address.id_for_label }}" class="form-label">
+                                            Site Address <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.address }}
+                                        {% if form.address.errors %}
+                                        <div class="text-danger small mt-1">{{ form.address.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Complete physical address of the site</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.site_location.id_for_label }}" class="form-label">
+                                            Site Location <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.site_location }}
+                                        {% if form.site_location.errors %}
+                                        <div class="text-danger small mt-1">{{ form.site_location.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">Specific location within the site area</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="{{ form.state.id_for_label }}" class="form-label">
+                                            GST State <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.state }}
+                                        {% if form.state.errors %}
+                                        <div class="text-danger small mt-1">{{ form.state.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="{{ form.pin_code.id_for_label }}" class="form-label">PIN Code</label>
+                                        {{ form.pin_code }}
+                                        {% if form.pin_code.errors %}
+                                        <div class="text-danger small mt-1">{{ form.pin_code.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.latitude.id_for_label }}" class="form-label">Latitude</label>
+                                        {{ form.latitude }}
+                                        {% if form.latitude.errors %}
+                                        <div class="text-danger small mt-1">{{ form.latitude.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.longitude.id_for_label }}" class="form-label">Longitude</label>
+                                        {{ form.longitude }}
+                                        {% if form.longitude.errors %}
+                                        <div class="text-danger small mt-1">{{ form.longitude.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 4: Status & Options -->
+                        <div class="section-card mb-4">
+                            <div class=" bg-warning text-dark p-3 rounded-top">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-toggle-on me-2"></i>
+                                    4. Status & Options
+                                </h5>
+                            </div>
+                            <div class="section-body p-4 border rounded-bottom">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch">
+                                            {{ form.is_active }}
+                                            <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">
+                                                Active Site
+                                            </label>
                                         </div>
+                                        <div class="form-text">Toggle to activate or deactivate the site</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="companyYard">
+                                            <label class="form-check-label fw-bold" for="companyYard">
+                                                Company Yard
+                                            </label>
+                                        </div>
+                                        <div class="form-text">Check if this is a company-owned yard</div>
                                     </div>
                                 </div>
                             </div>
@@ -207,13 +290,13 @@
                         <!-- Form Actions -->
                         <div class="row mt-4">
                             <div class="col-12">
-                                <div class="d-flex justify-content-between">
-                                    <a href="{% url 'crm:site_list' %}" class="btn btn-secondary">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{% url 'crm:site_list' %}" class="btn btn-outline-secondary">
                                         <i class="bi bi-arrow-left me-2"></i>Back to List
                                     </a>
                                     <div>
-                                        <button type="reset" class="btn btn-warning me-2">
-                                            <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                                        <button type="reset" class="btn btn-outline-warning me-2">
+                                            <i class="bi bi-arrow-clockwise me-2"></i>Reset Form
                                         </button>
                                         <button type="submit" class="btn btn-primary">
                                             <i class="bi bi-check-circle me-2"></i>
@@ -258,40 +341,158 @@
 {% endif %}
 
 <script>
-    // Dynamic project loading based on customer selection
-    document.getElementById('id_customer').addEventListener('change', function() {
-        const customerId = this.value;
-        const projectSelect = document.getElementById('id_project');
+$(document).ready(function() {
+    // Initialize form
+    initializeForm();
+    
+    // Division change handler
+    $('#id_division').change(function() {
+        updateCustomerDropdown();
+    });
+    
+    // Customer change handler
+    $('#id_customer').change(function() {
+        updateProjectDropdown();
+    });
+    
+    // Project change handler for auto-generating site ID
+    $('#id_project').change(function() {
+        generateSiteId();
+    });
+    
+    // Site name change handler for auto-generating site ID
+    $('#id_name').on('input', function() {
+        generateSiteId();
+    });
+
+    function initializeForm() {
+        // If we have a division selected, update customers
+        if ($('#id_division').val()) {
+            updateCustomerDropdown();
+        }
+        
+        // If we have a customer selected, update projects
+        if ($('#id_customer').val()) {
+            updateProjectDropdown();
+        }
+    }
+
+    function updateCustomerDropdown() {
+        const divisionId = $('#id_division').val();
+        const customerDropdown = $('#id_customer');
+        
+        if (divisionId) {
+            // Show loading state
+            customerDropdown.html('<option value="">Loading customers...</option>');
+            
+            // Fetch customers for the selected division
+            $.ajax({
+                url: '{% url "crm:ajax_load_customers" %}',
+                data: {
+                    'division_id': divisionId
+                },
+                success: function(data) {
+                    customerDropdown.html('<option value="">Select Customer</option>');
+                    $.each(data, function(key, value) {
+                        customerDropdown.append($('<option>', {
+                            value: value.id,
+                            text: value.name
+                        }));
+                    });
+                },
+                error: function() {
+                    customerDropdown.html('<option value="">Error loading customers</option>');
+                }
+            });
+        } else {
+            customerDropdown.html('<option value="">Select Customer</option>');
+            $('#id_project').html('<option value="">Select Project</option>');
+        }
+    }
+
+    function updateProjectDropdown() {
+        const customerId = $('#id_customer').val();
+        const projectDropdown = $('#id_project');
         
         if (customerId) {
-            fetch(`/crm/ajax/load-projects/?customer_id=${customerId}`)
-                .then(response => response.json())
-                .then(data => {
-                    projectSelect.innerHTML = '<option value="">Select Project</option>';
-                    data.forEach(project => {
-                        const option = document.createElement('option');
-                        option.value = project.id;
-                        option.textContent = `${project.project_id} - ${project.name}`;
-                        projectSelect.appendChild(option);
+            // Show loading state
+            projectDropdown.html('<option value="">Loading projects...</option>');
+            
+            // Fetch projects for the selected customer
+            $.ajax({
+                url: '{% url "crm:ajax_load_projects" %}',
+                data: {
+                    'customer_id': customerId
+                },
+                success: function(data) {
+                    projectDropdown.html('<option value="">Select Project</option>');
+                    $.each(data, function(key, value) {
+                        projectDropdown.append($('<option>', {
+                            value: value.id,
+                            text: value.project_id + ' - ' + value.name
+                        }));
                     });
-                });
+                    
+                    // Auto-generate site ID if we have a project
+                    generateSiteId();
+                },
+                error: function() {
+                    projectDropdown.html('<option value="">Error loading projects</option>');
+                }
+            });
         } else {
-            projectSelect.innerHTML = '<option value="">Select Project</option>';
+            projectDropdown.html('<option value="">Select Project</option>');
+        }
+    }
+
+    function generateSiteId() {
+        const projectText = $('#id_project option:selected').text();
+        const siteName = $('#id_name').val();
+        const siteIdField = $('#id_site_id');
+        
+        // Only generate if site_id is empty or we're creating a new site
+        if ((!siteIdField.val() || siteIdField.val() === '') && projectText && siteName) {
+            const projectCode = projectText.split(' - ')[0];
+            const siteCode = siteName.substring(0, 3).toUpperCase().replace(/\s/g, '');
+            const timestamp = new Date().getTime().toString().slice(-4);
+            
+            const generatedId = `${projectCode}-${siteCode}-${timestamp}`;
+            siteIdField.val(generatedId);
+        }
+    }
+
+    // Form validation
+    $('#siteForm').on('submit', function(e) {
+        let valid = true;
+        
+        // Check required fields
+        $('[required]').each(function() {
+            if (!$(this).val()) {
+                valid = false;
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        if (!valid) {
+            e.preventDefault();
+            showAlert('Please fill in all required fields.', 'danger');
         }
     });
 
-    // Auto-generate site ID when project changes
-    document.getElementById('id_project').addEventListener('change', function() {
-        const projectText = this.options[this.selectedIndex].text;
-        const siteIdField = document.getElementById('id_site_id');
-        
-        if (projectText && !siteIdField.value) {
-            const projectCode = projectText.split(' - ')[0].substring(0, 3).toUpperCase();
-            const timestamp = new Date().getTime().toString().slice(-3);
-            siteIdField.value = `${projectCode}-SITE-${timestamp}`;
-        }
-    });
+    function showAlert(message, type) {
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        $('.messages').html(alertHtml);
+    }
+});
 </script>
+
 {% endblock %}
 
 {% block extra_javascript %}

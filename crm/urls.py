@@ -45,5 +45,7 @@ urlpatterns = [
     path('sites/<int:site_pk>/remove-employee/<int:employee_pk>/', views.remove_site_employee, name='remove_site_employee'),
     
     # AJAX URLs
-    path('ajax/load-projects/', views.load_projects, name='ajax_load_projects'),
+    path('ajax/load-projects1/', views.load_projects, name='ajax_load_projects'),
+    path('ajax/load-customers/', views.ajax_load_customers, name='ajax_load_customers'),
+    path('ajax/load-projects/', views.ajax_load_projects, name='ajax_load_projects'),
 ]

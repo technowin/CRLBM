@@ -393,13 +393,32 @@ class ProjectForm(forms.ModelForm):
                 'type': 'date'
             }),
         }
-
+from CMS.models import DivisionMaster, CustomerMaster
 
 class SiteForm(forms.ModelForm):
+    # Custom fields for Division and Customer from CMS app
+    division = forms.ModelChoiceField(
+        queryset=DivisionMaster.objects.filter(is_active=True),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'id_division'
+        }),
+        required=True
+    )
+    
+    customer = forms.ModelChoiceField(
+        queryset=CustomerMaster.objects.filter(is_active=True),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'id': 'id_customer'
+        }),
+        required=True
+    )
+
     class Meta:
         model = Site
         fields = [
-            'name', 'site_id', 'project', 'site_type', 'is_active', 
+            'division', 'customer', 'name', 'site_id', 'project', 'site_type', 'is_active', 
             'region', 'state', 'address', 'site_location', 'pin_code',
             'latitude', 'longitude', 'site_head'
         ]
@@ -414,7 +433,8 @@ class SiteForm(forms.ModelForm):
                 'readonly': True
             }),
             'project': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+                'id': 'id_project'
             }),
             'site_type': forms.Select(attrs={
                 'class': 'form-select'
@@ -457,6 +477,14 @@ class SiteForm(forms.ModelForm):
                 'class': 'form-select'
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set initial values if instance exists
+        if self.instance and self.instance.pk:
+            if self.instance.project:
+                # self.fields['division'].initial = self.instance.project.customer.division
+                self.fields['customer'].initial = self.instance.project.customer
 
 
 class SiteEmployeeForm(forms.ModelForm):
