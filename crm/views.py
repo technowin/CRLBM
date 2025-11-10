@@ -855,3 +855,28 @@ def site_dashboard(request):
         'recent_sites': recent_sites,
     }
     return render(request, 'crm/site_dashboard.html', context)
+
+
+@login_required
+def ajax_load_customers(request):
+    """AJAX view to load customers based on division"""
+    division_id = request.GET.get('division_id')
+    if division_id:
+        customers = CustomerMaster.objects.filter(
+            division_id=division_id, 
+            is_active=True
+        ).values('id', 'name')
+        return JsonResponse(list(customers), safe=False)
+    return JsonResponse([], safe=False)
+
+@login_required
+def ajax_load_projects(request):
+    """AJAX view to load projects based on customer"""
+    customer_id = request.GET.get('customer_id')
+    if customer_id:
+        projects = Project.objects.filter(
+            customer_id=customer_id, 
+            is_active=True
+        ).values('id', 'name', 'project_id')
+        return JsonResponse(list(projects), safe=False)
+    return JsonResponse([], safe=False)
